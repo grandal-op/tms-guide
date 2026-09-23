@@ -1,0 +1,539 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TMS 인터랙티브 목업</title><style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f8f6;color:#173b30}button,input,select{font:inherit}.app{display:grid;grid-template-columns:230px 1fr 310px;height:100vh}.side{background:#174f40;color:#fff;padding:16px}.brand{font-size:20px;font-weight:800;margin-bottom:20px}.vendor{background:#2b5c4f;border:1px solid #4b7569;border-radius:12px;padding:13px;margin-bottom:20px}.vendor small{opacity:.7}.vendor b{display:block;margin:7px 0}.nav button{width:100%;border:0;background:transparent;color:#e6f1ed;padding:12px;text-align:left;border-radius:9px;font-weight:700;cursor:pointer}.nav button.active{background:#eaf7f0;color:#12543e}.main{padding:24px;overflow:auto}.top{display:flex;justify-content:space-between}.top h1{margin:0 0 6px}.muted{color:#71847d;font-size:13px}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.card,.panel{background:#fff;border:1px solid #dce7e1;border-radius:14px}.card{padding:15px}.num{float:right;font-size:24px;font-weight:800}.panel{padding:16px;margin:12px 0}.toolbar{display:flex;gap:8px;margin-bottom:12px}.toolbar input{flex:1}.toolbar input,.toolbar select,.btn{padding:10px;border:1px solid #ccd9d3;border-radius:8px;background:#fff}.btn{cursor:pointer;font-weight:700}.primary{background:#16845c!important;color:#fff;border-color:#16845c!important}table{width:100%;border-collapse:collapse;font-size:14px}th,td{padding:12px;border-bottom:1px solid #e8eeeb;text-align:left}th{background:#f5f8f6;color:#63776f}.badge{padding:5px 9px;border-radius:15px;background:#e5f7eb;color:#13844f;font-weight:700}.wait{background:#fff1dc;color:#b86b09}.page{display:none}.page.active{display:block}.guide{background:#fff;border-left:1px solid #dce7e1;padding:18px;overflow:auto}.guide h2{font-size:18px}.guide p{font-size:13px;line-height:1.55;color:#71847d}.guide-group{margin:16px 0 6px;padding:10px 10px 7px;background:#f5f8f6;border-radius:10px}.guide-group-title{font-size:14px;font-weight:800;color:#174f40;margin-bottom:3px}.guide-group-summary{font-size:11px;color:#71847d;line-height:1.45;margin-bottom:7px}.step{padding:9px 10px;border:1px solid #dce7e1;border-radius:10px;margin:8px 0;cursor:pointer}.step.active{border:2px solid #16845c;background:#effaf4}.step small{display:block;color:#71847d;margin-top:4px}.highlight{outline:4px solid #28a87966;box-shadow:0 0 0 8px #28a87918}.map{height:390px;background:linear-gradient(135deg,#d7eee4,#e7efd5);border-radius:12px;position:relative;overflow:hidden}.road{position:absolute;width:120%;height:5px;background:#fff9;left:-10%;top:48%;transform:rotate(-18deg)}.road.r2{top:65%;transform:rotate(25deg)}.pin{position:absolute;background:#16845c;color:#fff;padding:7px 10px;border-radius:18px;font-size:12px}.p1{left:30%;top:30%}.p2{left:58%;top:45%}.p3{left:45%;top:70%}.split{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}.modal{display:none;position:fixed;inset:0;background:#0005;align-items:center;justify-content:center;z-index:9}.modal.show{display:flex}.modalbox{background:#fff;width:420px;padding:22px;border-radius:15px}.field{margin:12px 0}.field input{width:100%;padding:10px;border:1px solid #ccd9d3;border-radius:8px}.tourbuttons{display:flex;gap:7px;margin-top:14px}@media(max-width:1050px){.app{grid-template-columns:200px 1fr}.guide{position:fixed;right:0;width:290px;height:100%;box-shadow:-8px 0 25px #0002}.cards{grid-template-columns:repeat(2,1fr)}}
+/* v10: 배정 현황 텍스트 줄바꿈/밀림 방지 */
+#assign > div[style*="grid-template-columns"]{grid-template-columns:220px minmax(720px,1fr) 330px!important;align-items:start}
+#assign #assignTable{overflow-x:auto}
+#assign #assignTable table{min-width:700px;table-layout:auto}
+#assign #assignTable th,#assign #assignTable td{white-space:nowrap;word-break:keep-all;vertical-align:middle}
+#assign #assignTable th:nth-child(1),#assign #assignTable td:nth-child(1){width:64px;text-align:center}
+#assign #assignTable th:nth-child(2),#assign #assignTable td:nth-child(2){min-width:190px}
+#assign #assignTable th:nth-child(3),#assign #assignTable td:nth-child(3){min-width:300px}
+#assign #assignTable th:nth-child(4),#assign #assignTable td:nth-child(4){width:120px}
+#assign #assignTable h3{white-space:nowrap}
+#assign #assignTable .muted{white-space:nowrap}
+#assign #assignTable .badge{white-space:nowrap;display:inline-block}
+#assign .panel{min-width:0}
+@media(max-width:1450px){
+ #assign > div[style*="grid-template-columns"]{grid-template-columns:200px minmax(660px,1fr) 300px!important}
+}
+</style>
+<style>
+/* v12 guided-tour UX */
+body{background:#eef3f0}
+.app{grid-template-columns:270px 1fr!important;height:100vh}
+.side{display:none!important}
+.guide{
+  position:relative!important;right:auto!important;width:auto!important;height:100vh!important;
+  grid-column:1;grid-row:1;background:#fff!important;border:0!important;border-right:1px solid #dce7e1!important;
+  box-shadow:none!important;padding:20px 14px!important;overflow:auto!important;z-index:20!important
+}
+.main{grid-column:2;grid-row:1;padding:24px 34px 80px!important;background:#f5f8f6;position:relative}
+.guide h2{font-size:21px;margin:4px 8px 5px}.guide>p{margin:0 8px 18px}
+.guide hr,.guide>h3,.guide>.tourbuttons{display:none}
+.guide-group{background:transparent!important;padding:0!important;margin:8px 0 14px!important;border-radius:0!important}
+.guide-group-title{
+ padding:11px 12px;margin:0 0 3px;border-radius:9px;font-size:15px!important;cursor:pointer;
+ display:flex;justify-content:space-between;align-items:center
+}
+.guide-group-title:after{content:"›";font-size:20px;color:#82958d}
+.guide-group-title:hover{background:#f2f7f4}
+.guide-group-summary{padding:0 12px 7px!important;font-size:11px!important}
+.guide-group .step{border:0!important;border-radius:8px!important;margin:2px 6px!important;padding:9px 12px 9px 20px!important;background:transparent!important}
+.guide-group .step b{font-size:13px}.guide-group .step small{display:none}
+.guide-group .step.active{background:#e9f7ef!important;color:#0f6749!important;border:0!important}
+.main .top{margin-bottom:14px}
+#tourOverlay{
+ position:fixed;left:270px;right:0;bottom:0;height:74px;background:rgba(255,255,255,.97);
+ border-top:1px solid #dce7e1;z-index:30;display:flex;align-items:center;gap:18px;padding:10px 30px;
+ box-shadow:0 -6px 20px rgba(20,60,45,.06)
+}
+#tourOverlay .progress{font-size:12px;color:#71847d;white-space:nowrap}
+#tourOverlay .copy{flex:1;min-width:0}
+#tourOverlay .copy b{display:block;font-size:14px;margin-bottom:3px}
+#tourOverlay .copy span{font-size:12px;color:#60756d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+#tourOverlay .actions{display:flex;gap:7px}
+#tourOverlay .btn{padding:8px 12px}
+.guide-highlight{
+ position:relative!important;z-index:11!important;outline:3px solid #16845c!important;
+ box-shadow:0 0 0 7px rgba(22,132,92,.13),0 8px 30px rgba(0,0,0,.08)!important;
+}
+#floatingTip{
+ position:fixed;z-index:40;width:310px;background:#123f34;color:#fff;border-radius:12px;padding:14px 15px;
+ box-shadow:0 14px 40px rgba(0,0,0,.22);display:none;pointer-events:none
+}
+#floatingTip:after{content:"";position:absolute;width:12px;height:12px;background:#123f34;transform:rotate(45deg);left:22px;bottom:-6px}
+#floatingTip .kicker{font-size:11px;opacity:.68;margin-bottom:4px}
+#floatingTip b{font-size:14px;display:block;margin-bottom:5px}
+#floatingTip p{font-size:12px;line-height:1.5;margin:0;color:#e3efeb}
+.page{padding-bottom:12px}
+@media(max-width:1100px){.app{grid-template-columns:230px 1fr!important}.guide{width:auto!important}.main{padding:18px 20px 80px!important}#tourOverlay{left:230px}}
+</style>
+
+<style>
+#floatingTip{
+ opacity:0;
+ transform:translateY(10px) scale(.985);
+ transition:opacity .28s ease,transform .34s cubic-bezier(.22,1,.36,1),left .28s ease,top .28s ease;
+ will-change:opacity,transform,left,top;
+}
+#floatingTip.tip-visible{opacity:1;transform:translateY(0) scale(1)}
+#floatingTip.tip-leave{opacity:0;transform:translateY(7px) scale(.99)}
+.guide-highlight{transition:outline-color .25s ease,box-shadow .35s ease!important}
+</style>
+
+<style>
+/* v14: 더 느리고 자연스러운 가이드 모션 */
+#floatingTip{
+ opacity:0;
+ transform:translate3d(0,18px,0) scale(.97);
+ filter:blur(2px);
+ transition:
+   opacity .55s cubic-bezier(.16,1,.3,1),
+   transform .70s cubic-bezier(.16,1,.3,1),
+   filter .50s ease,
+   left .55s cubic-bezier(.16,1,.3,1),
+   top .55s cubic-bezier(.16,1,.3,1);
+}
+#floatingTip.tip-visible{
+ opacity:1;
+ transform:translate3d(0,0,0) scale(1);
+ filter:blur(0);
+}
+#floatingTip.tip-leave{
+ opacity:0;
+ transform:translate3d(0,8px,0) scale(.985);
+ filter:blur(1px);
+ transition-duration:.30s;
+}
+.guide-highlight{
+ transition:outline-color .45s ease,box-shadow .65s cubic-bezier(.16,1,.3,1)!important;
+}
+.page.active{animation:softPageIn .55s cubic-bezier(.16,1,.3,1)}
+@keyframes softPageIn{
+ from{opacity:.55;transform:translateY(5px)}
+ to{opacity:1;transform:translateY(0)}
+}
+.step.active{transition:background .45s ease,color .45s ease}
+html{scroll-behavior:smooth}
+</style>
+
+<style>
+/* v15: 말풍선은 목적지에서만 생성/소멸 — 위치 간 순간이동 제거 */
+#floatingTip{
+  opacity:0!important;
+  visibility:hidden;
+  transform:translate3d(0,14px,0) scale(.975)!important;
+  filter:blur(1.5px);
+  transition:
+    opacity .46s cubic-bezier(.16,1,.3,1),
+    transform .62s cubic-bezier(.16,1,.3,1),
+    filter .42s ease!important;
+  will-change:opacity,transform,filter!important;
+}
+#floatingTip.tip-visible{
+  opacity:1!important;
+  visibility:visible;
+  transform:translate3d(0,0,0) scale(1)!important;
+  filter:blur(0);
+}
+#floatingTip.tip-leave{
+  opacity:0!important;
+  visibility:visible;
+  transform:translate3d(0,6px,0) scale(.99)!important;
+  filter:blur(1px);
+  transition-duration:.22s!important;
+}
+</style>
+
+<style>
+/* v16: 더 길고 부드러운 '스르륵' 등장 */
+#floatingTip{
+ opacity:0!important;
+ visibility:hidden;
+ transform:translate3d(0,26px,0) scale(.965)!important;
+ filter:blur(3px);
+ transition:
+   opacity .85s cubic-bezier(.16,1,.3,1),
+   transform 1.05s cubic-bezier(.16,1,.3,1),
+   filter .78s cubic-bezier(.16,1,.3,1)!important;
+}
+#floatingTip.tip-visible{
+ opacity:1!important;
+ visibility:visible;
+ transform:translate3d(0,0,0) scale(1)!important;
+ filter:blur(0);
+}
+#floatingTip.tip-leave{
+ opacity:0!important;
+ visibility:visible;
+ transform:translate3d(0,9px,0) scale(.992)!important;
+ filter:blur(1.5px);
+ transition:
+   opacity .32s ease,
+   transform .40s ease,
+   filter .30s ease!important;
+}
+</style>
+</head><body>
+<div class="app"><aside class="side"><div class="brand">🚚 배송 운영센터</div><div class="vendor"><small>현재 유통사</small><b>새봄유통 배송관리</b><small>물류창고 · 경기도 하남시 미사대로 501</small></div><div class="nav"><button data-page="today">▦ 오늘 운영</button><button data-page="dispatch">⌘ 당일 배차</button><button data-page="assign">☰ 배정 현황</button><button data-page="erp">↔ ERP 자동 연동</button><button data-page="live">◎ 실시간 관제</button><br><button data-page="stores" class="active">⌂ 거래처 관리</button><button data-page="drivers">♙ 기사 관리</button></div></aside>
+<main class="main"><div class="top"><div><h1 id="title">거래처 관리</h1><div class="muted" id="desc">거래하는 매장과 배송 정보를 관리합니다.</div></div><div>🔵 정상 연결</div></div>
+<section id="stores" class="page">
+<div class="panel" id="storeExcelArea">
+  <div style="display:flex;justify-content:space-between;align-items:center"><div><h3 style="margin:0 0 6px">거래처 마스터 엑셀 업로드</h3><p class="muted" style="margin:0">엑셀 양식을 이용해 여러 매장을 한 번에 생성할 수 있습니다.</p></div><span class="badge">일괄 생성</span></div>
+  <div style="border:1px dashed #b9d3c6;border-radius:12px;padding:18px;margin-top:14px">
+    <b>거래처 매장 파일</b>
+    <div style="display:grid;grid-template-columns:1fr 250px;gap:12px;margin-top:10px">
+      <div style="padding:34px;text-align:center;border:1px dashed #ccd9d3;border-radius:10px;color:#71847d">파일을 선택하거나 여기에 끌어놓으세요</div>
+      <div><button class="btn" style="width:100%;margin-bottom:8px">엑셀 양식 다운로드</button><button id="storeBulkUpload" class="btn primary" style="width:100%" onclick="bulkStoreUpload()">매장 목록 업로드</button></div>
+    </div>
+    <p class="muted">필수: 매장명, 주소 · 선택: 거래처코드, 전화번호, 적치 특이사항</p>
+  </div>
+</div>
+
+<div class="cards"><div class="card">전체 거래처 <span class="num" id="storeCount">236</span></div><div class="card">적치 정보 등록 <span class="num">144</span></div><div class="card">배송호차 등록 <span class="num">—</span></div><div class="card">미등록 정보 <span class="num">0</span></div></div>
+
+<div class="panel" id="storeListArea">
+  <div class="toolbar"><input placeholder="매장명, 주소, 거래처코드, 전화번호 검색"><select><option>전체 거래처</option><option>정보 등록</option><option>정보 미등록</option></select><button id="addStore" class="btn primary">+ 거래처 직접 등록</button></div>
+  <p class="muted">생성된 매장을 선택하면 우측에서 상세 정보 확인 및 수정이 가능합니다.</p>
+  <div style="display:grid;grid-template-columns:1fr 340px;gap:12px">
+    <div><table><thead><tr><th>매장 정보</th><th>주소</th><th>배송호차</th><th>적치 정보</th></tr></thead><tbody id="storeRows">
+      <tr class="selected" onclick="selectManagedStore('새봄마트 강남점','SB001','서울 강남구 테헤란로 321','02-555-1234','주방입구',this)"><td><b>새봄마트 강남점</b><br><span class="muted">코드 SB001</span></td><td>서울 강남구 테헤란로 321</td><td>미등록</td><td><span class="badge">정보 등록</span></td></tr>
+      <tr onclick="selectManagedStore('행복푸드 송파점','HF002','서울 송파구 송파대로 150','02-555-2345','후문 적치',this)"><td><b>행복푸드 송파점</b><br><span class="muted">코드 HF002</span></td><td>서울 송파구 송파대로 150</td><td>2호차</td><td><span class="badge">정보 등록</span></td></tr>
+      <tr onclick="selectManagedStore('늘봄카페 성수점','NB004','서울 성동구 아차산로 78','02-555-3456','냉장고 옆',this)"><td><b>늘봄카페 성수점</b><br><span class="muted">코드 NB004</span></td><td>서울 성동구 아차산로 78</td><td>미등록</td><td><span class="badge wait">정보 미등록</span></td></tr>
+    </tbody></table></div>
+    <div class="panel" id="storeEditArea" style="margin:0">
+      <div style="display:flex;justify-content:space-between"><h3 id="managedName" style="margin-top:0">새봄마트 강남점</h3><span class="badge">배송 가능</span></div>
+      <p><b>거래처 코드</b><br><span id="managedCode">SB001</span></p><hr>
+      <p><b>전화번호</b><br><span id="managedPhone">02-555-1234</span></p><hr>
+      <p><b>주소</b><br><span id="managedAddress">서울 강남구 테헤란로 321</span></p><hr>
+      <p><b>적치 특이사항</b><br><span id="managedNote">주방입구</span></p>
+      <button id="storeEditBtn" class="btn primary" style="width:100%" onclick="editManagedStore()">✎ 정보 수정</button>
+    </div>
+  </div>
+</div>
+</section>
+<section id="drivers" class="page">
+<div class="cards">
+<div class="card">전체 기사 <span class="num" id="driverCount">7</span><br><span class="muted">활성 계정 7개</span></div>
+<div class="card">오늘 운행 <span class="num">6</span><br><span class="muted">85개 매장 배정</span></div>
+<div class="card">대기 중 <span class="num">0</span></div>
+<div class="card">오늘 출근 <span class="num">6</span></div>
+</div>
+
+<div class="panel" id="driverCreateArea">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div><h3 style="margin:0">기사 계정 관리</h3><p class="muted">기사 앱에서 사용할 계정을 생성하고 차량 정보를 함께 등록합니다.</p></div>
+<button id="addDriver" class="btn primary">+ 기사 등록</button>
+</div></div>
+
+<div class="panel">
+<div class="toolbar"><input placeholder="기사명, 전화번호, 차량번호, 로그인 아이디 검색"><select><option>전체 계정</option><option>활성</option><option>비활성</option></select></div>
+<div style="display:grid;grid-template-columns:1fr 350px;gap:12px">
+<div id="driverListArea"><table><thead><tr><th>기사</th><th>차량</th><th>앱 계정</th><th>오늘 배차</th></tr></thead><tbody id="driverRows">
+<tr class="selected" onclick="selectManagedDriver('김민수','010-1234-5678','12가3456','driver001','활성',this)"><td><b>김민수</b><br><span class="muted">010-1234-5678</span></td><td>12가3456</td><td><span class="badge">● 활성</span><br><span class="muted">driver001</span></td><td>5개</td></tr>
+<tr onclick="selectManagedDriver('이서준','010-2345-6789','34나5678','driver002','활성',this)"><td><b>이서준</b><br><span class="muted">010-2345-6789</span></td><td>34나5678</td><td><span class="badge">● 활성</span><br><span class="muted">driver002</span></td><td>7개</td></tr>
+<tr onclick="selectManagedDriver('박지훈','010-3456-7890','56다9012','driver003','활성',this)"><td><b>박지훈</b><br><span class="muted">010-3456-7890</span></td><td>56다9012</td><td><span class="badge">● 활성</span><br><span class="muted">driver003</span></td><td>6개</td></tr>
+</tbody></table></div>
+
+<div class="panel" id="driverAccountArea" style="margin:0">
+<div style="display:flex;justify-content:space-between"><h3 id="driverName" style="margin-top:0">김민수</h3><span id="driverActive" class="badge">계정 활성</span></div>
+<p><span id="driverPhone">010-1234-5678</span></p><hr>
+<p><b>차량</b><br><span id="driverCar">12가3456</span></p><hr>
+<p><b>앱 계정 정보</b><br>로그인 ID &nbsp; <span id="driverLogin">driver001</span><br>PIN &nbsp; ••••</p>
+<div id="driverResetArea" style="background:#eef7ff;padding:13px;border-radius:10px;margin-top:12px">
+<b>계정 관리</b><p class="muted">기사 정보 변경, 임시 PIN 재발급 및 계정 비활성화가 가능합니다.</p>
+<button id="driverEditBtn" class="btn primary" onclick="editDriver()">기사 정보 수정</button>
+<button id="pinResetBtn" class="btn" onclick="resetPin()">임시 PIN 재발급</button>
+<button id="disableDriverBtn" class="btn" onclick="toggleDriver()">계정 비활성화</button>
+</div>
+</div></div></div>
+</section>
+<section id="dispatch" class="page">
+<div class="panel">
+<h3>매장 등록</h3><p class="muted">엑셀, 매장명 입력 또는 직접 선택으로 오늘 배송할 매장을 추가할 수 있습니다.</p>
+<div class="dispatch-tabs" style="display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #dce7e1;margin:14px 0">
+<button id="tabExcel" class="btn dtab primary" onclick="showDispatchTab('excel')">▤ 엑셀 업로드</button>
+<button id="tabPaste" class="btn dtab" onclick="showDispatchTab('paste')">☷ 매장명 붙여넣기</button>
+<button id="tabDirect" class="btn dtab" onclick="showDispatchTab('direct')">▣ 매장 직접 선택</button>
+</div>
+
+<div id="dispatchExcel" class="dcontent">
+<div class="panel" id="excelUploadArea" style="border-style:dashed">
+<b>배송 매장 파일</b><div style="display:grid;grid-template-columns:1fr 260px;gap:14px;margin-top:12px">
+<div style="padding:38px;text-align:center;border:1px dashed #bdd5c8;border-radius:10px;color:#71847d">파일을 선택하거나 여기에 끌어놓으세요</div>
+<div><button class="btn" style="width:100%;margin-bottom:8px">엑셀 양식 다운로드</button><button class="btn primary" style="width:100%" onclick="demoUpload()">매장 목록 업로드</button></div></div>
+<p class="muted">필수 열: 매장명, 담당기사 · 선택 열: 배송순서, 주소, 특이사항</p></div>
+<div class="panel"><b>등록된 배송 매장</b> <span class="muted">총 85개</span><div class="toolbar" style="margin-top:12px"><input placeholder="매장명, 주소로 검색하세요."><select><option>전체 기사</option><option>김민수</option><option>이서준</option></select></div></div>
+</div>
+
+<div id="dispatchPaste" class="dcontent" style="display:none">
+<div class="panel" id="pasteArea"><div style="display:grid;grid-template-columns:1fr 300px;gap:14px">
+<div><b>할당 매장 목록</b><textarea id="pasteStores" style="width:100%;height:120px;margin-top:8px;padding:12px;border:1px solid #ccd9d3;border-radius:9px">그린키친 역삼점
+행복푸드 송파점
+늘봄카페 성수점
+청년마트 분당점</textarea></div>
+<div><b>담당 기사</b><select id="pasteDriver" style="width:100%;padding:11px;margin:8px 0;border:1px solid #ccd9d3;border-radius:9px"><option>기사님 선택</option><option>김민수</option><option>이서준</option></select><button class="btn primary" style="width:100%" onclick="matchStores()">저장</button></div></div></div>
+<div class="panel"><b>입력한 매장명 / 연결 결과</b><table id="matchTable"><tr><th>입력한 매장명</th><th>연결 결과</th><th>상태</th></tr><tr><td>그린키친 역삼점</td><td>서울 강남구 역삼로 120</td><td><span class="badge">연결 완료</span></td></tr><tr><td>행복푸드 송파점</td><td>서울 송파구 송파대로 150</td><td><span class="badge">연결 완료</span></td></tr></table></div>
+</div>
+
+<div id="dispatchDirect" class="dcontent" style="display:none">
+<div style="display:grid;grid-template-columns:1fr 320px;gap:14px">
+<div class="panel" id="directArea"><div class="toolbar"><input placeholder="매장명·주소 검색"><select><option>전체 지역</option><option>서울</option><option>경기</option></select></div>
+<table><tr><td><input type="checkbox" class="storeCheck"> 새봄마트 강남점<br><span class="muted">서울 강남구 테헤란로 321</span></td><td>추가 가능</td></tr><tr><td><input type="checkbox" class="storeCheck"> 행복푸드 송파점<br><span class="muted">서울 송파구 송파대로 150</span></td><td>추가 가능</td></tr><tr><td><input type="checkbox" class="storeCheck"> 늘봄카페 성수점<br><span class="muted">서울 성동구 아차산로 78</span></td><td>추가 가능</td></tr></table></div>
+<div class="panel"><b>선택한 매장</b> <span id="selectedCount" class="badge">0개</span><p><b>담당 기사</b></p><select id="driverSelect" style="width:100%;padding:11px;border:1px solid #ccd9d3;border-radius:9px"><option>추가 후 배정</option><option>김민수 · 12가3456</option><option>이서준 · 34나5678</option></select><div style="margin-top:120px;text-align:right"><button class="btn" onclick="clearChecks()">전체 해제</button> <button id="assignBtn" class="btn primary">배송 추가</button></div></div>
+</div></div>
+</div></section>
+<section id="assign" class="page">
+<div class="cards"><div class="card">배정된 차량 <span class="num">6</span></div><div class="card">배정된 기사 <span class="num">6</span></div><div class="card">배송 예정 매장 <span class="num">85</span></div><div class="card">예상 완료 <span class="num">18:30</span></div></div>
+<div class="panel"><div class="toolbar"><input placeholder="매장명을 검색하면 배정된 차편을 확인할 수 있습니다"><button class="btn">새로고침</button></div></div>
+<div style="display:grid;grid-template-columns:240px 1fr 330px;gap:12px">
+<div class="panel" id="assignedDrivers"><h3>기사·차량</h3>
+<div class="step active" onclick="selectRoute('김민수','12가3456')"><b>김민수</b><small>12가3456 · 15매장</small><div class="muted">완료 4 · 대기 11</div></div>
+<div class="step" onclick="selectRoute('이서준','34나5678')"><b>이서준</b><small>34나5678 · 14매장</small><div class="muted">완료 3 · 대기 11</div></div>
+<div class="step"><b>박지훈</b><small>56다9012 · 17매장</small><div class="muted">완료 10 · 대기 7</div></div></div>
+<div class="panel" id="assignTable"><div style="display:flex;justify-content:space-between;align-items:center"><h3 id="routeTitle">12가3456 배정 매장</h3><button class="btn">순서 변경</button></div>
+<table><thead><tr><th>순서</th><th>매장</th><th>주소</th><th>상태</th></tr></thead><tbody>
+<tr class="selected" onclick="selectStore('새봄마트 강남점','서울 강남구 테헤란로 321','김민수','12가3456',this)"><td>1</td><td><b>새봄마트 강남점</b><br><span class="muted">주방입구</span></td><td>서울 강남구 테헤란로 321</td><td><span class="badge">배송 완료</span></td></tr>
+<tr onclick="selectStore('행복푸드 송파점','서울 송파구 송파대로 150','김민수','12가3456',this)"><td>2</td><td><b>행복푸드 송파점</b></td><td>서울 송파구 송파대로 150</td><td><span class="badge">배송 완료</span></td></tr>
+<tr onclick="selectStore('늘봄카페 성수점','서울 성동구 아차산로 78','김민수','12가3456',this)"><td>3</td><td><b>늘봄카페 성수점</b></td><td>서울 성동구 아차산로 78</td><td><span class="badge wait">배송 대기</span></td></tr>
+<tr onclick="selectStore('청년마트 분당점','경기 성남시 분당구 정자일로 88','김민수','12가3456',this)"><td>4</td><td><b>청년마트 분당점</b></td><td>경기 성남시 분당구 정자일로 88</td><td><span class="badge wait">배송 대기</span></td></tr>
+</tbody></table></div>
+<div class="panel" id="storeDetail"><div style="display:flex;justify-content:space-between"><h3 id="detailName">새봄마트 강남점</h3><span class="badge" id="detailStatus">배송 완료</span></div>
+<p><b>주소</b><br><span id="detailAddress">서울 강남구 테헤란로 321</span></p><hr><p><b>담당 기사</b> <span id="detailDriver">김민수</span></p><p><b>차량번호</b> <span id="detailCar">12가3456</span></p><p><b>특이사항</b> 주방입구</p>
+<div id="priorityArea" style="background:#eef7ff;padding:13px;border-radius:10px;margin-top:14px"><b>배송 우선순위·순서</b><p class="muted">긴급한 매장은 빠른 배송으로 지정할 수 있습니다.</p><button id="priorityBtn" class="btn primary" style="width:100%;background:#1677e8!important;border-color:#1677e8!important" onclick="priority()">⚡ 빠른 배송 지정</button></div>
+<div id="linkArea" style="background:#eef7ff;padding:13px;border-radius:10px;margin-top:12px"><b>매장 배송조회 링크</b><p class="muted">매장에서 기사 위치와 배송 진행 상태를 확인할 수 있습니다.</p><input id="storeLink" value="https://demo-tms.local/track/SB001" readonly style="width:100%;padding:9px;border:1px solid #ccd9d3;border-radius:8px;margin-bottom:7px"><button id="copyLink" class="btn primary" style="width:100%;background:#1677e8!important;border-color:#1677e8!important" onclick="copyStoreLink()">매장 링크 복사</button></div>
+</div></div></section>
+<section id="erp" class="page">
+<div id="erpBenefit" class="panel" style="background:#effaf4;border-color:#b8e5ce">
+<div style="display:flex;justify-content:space-between;align-items:center">
+<div><h3 style="margin:0 0 6px">✓ ERP 연동으로 배차 업무를 자동화하세요</h3>
+<p class="muted" style="margin:0">ERP 주문을 자동으로 수집하고 기사별 차편에 반영해, 매일 반복하는 수동 배차 작업을 줄일 수 있습니다.</p></div>
+<span class="badge">자동 배차</span></div></div>
+
+<div style="display:grid;grid-template-columns:1fr 330px;gap:12px">
+<div>
+<div class="panel" id="erpAccount"><h3>ERP 계정 정보</h3><p class="muted">현재 지원하는 ERP를 선택하고 계정 정보를 입력해 주세요.</p>
+<div class="toolbar"><select id="erpType"><option>키친보드</option><option>이카운트</option></select><input placeholder="로그인 아이디"><input type="password" placeholder="비밀번호"><button id="erpSave" class="btn primary">계정 저장</button></div>
+<p class="muted">※ 현재 자동 연동은 <b>키친보드</b>와 <b>이카운트</b>를 지원합니다.</p></div>
+
+<div class="panel" id="erpFlow"><h3>연동 후 자동 처리 흐름</h3>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;text-align:center">
+<div class="card"><b>① 주문 수집</b><p class="muted">ERP 주문 자동 확인</p></div>
+<div class="card"><b>② 주문 분류</b><p class="muted">배송 조건 자동 적용</p></div>
+<div class="card"><b>③ 차편 연결</b><p class="muted">기사·차량 자동 연결</p></div>
+<div class="card"><b>④ 배차 반영</b><p class="muted">당일 배차에 자동 등록</p></div></div>
+<p style="margin-bottom:0"><b>수동으로 매장을 하나씩 배차하지 않아도 ERP 주문 기준으로 자동 반영됩니다.</b></p></div>
+
+<div class="panel"><h3>현재 자동 수집 조건</h3>
+<table><tr><th>배송일</th><th>주문 상태</th><th>제외</th><th>포함</th><th>실행</th></tr><tr><td>익일 배송</td><td>접수</td><td>중복·취소 주문</td><td>0원 주문</td><td>매일 오후 11시</td></tr></table></div>
+</div>
+<div>
+<div id="erpSupported" class="panel"><h3>지원 ERP</h3>
+<div class="step active"><b>키친보드</b><small>자동 주문 수집 및 배차 지원</small></div>
+<div class="step active"><b>이카운트</b><small>자동 주문 수집 및 배차 지원</small></div>
+<div style="background:#eef7ff;padding:14px;border-radius:10px;margin-top:12px"><b>다른 ERP를 사용하시나요?</b><p class="muted">사용 중인 ERP가 목록에 없다면 추가 연동을 요청해 주세요.</p><button id="erpRequest" class="btn primary" style="width:100%;background:#1677e8!important;border-color:#1677e8!important" onclick="requestERP()">ERP 추가 연동 요청</button></div></div>
+<div class="panel"><h3>연동 대기 <span class="muted">(0)</span></h3><p class="muted">연동된 호차 정보가 없습니다.</p></div>
+</div></div></section>
+<section id="live" class="page">
+<div class="cards">
+  <div class="card">운행 차량 <span class="num">6</span><br><span class="muted">5명 위치 수신 중</span></div>
+  <div class="card">배송 진행 중 <span class="num">5</span><br><span class="muted">현재 이동·배송 중</span></div>
+  <div class="card">배송 완료 <span class="num">22/85</span><br><span class="muted">전체 완료율 26%</span></div>
+  <div class="card">지연·이슈 <span class="num">2</span><br><span class="muted">사진 누락 2</span></div>
+</div>
+<div style="display:grid;grid-template-columns:280px 1fr 330px;gap:12px">
+  <div class="panel" id="driverStatusArea">
+    <h3>기사 배송 상태</h3>
+    <p class="muted">기사별 운행 상태와 배송 진행률을 실시간으로 확인합니다.</p>
+    <div class="step active" onclick="focusDriver('김민수','12가3456','운행 중','4 / 15','37.4979','127.0276')"><b>김민수</b><small>12가3456 · 운행 중</small><div class="muted">4 / 15 완료</div></div>
+    <div class="step" onclick="focusDriver('이서준','34나5678','출발 대기','3 / 14','37.5145','127.1059')"><b>이서준</b><small>34나5678 · 출발 대기</small><div class="muted">3 / 14 완료</div></div>
+    <div class="step" onclick="focusDriver('박지훈','56다9012','운행 중','10 / 17','37.3943','127.1112')"><b>박지훈</b><small>56다9012 · 운행 중</small><div class="muted">10 / 17 완료</div></div>
+    <div class="step" onclick="focusDriver('최유진','78라3456','운행 중','1 / 14','37.2636','127.0286')"><b>최유진</b><small>78라3456 · 운행 중</small><div class="muted">1 / 14 완료</div></div>
+  </div>
+
+  <div>
+    <div id="liveMap" class="map" style="height:470px">
+      <div class="road"></div><div class="road r2"></div>
+      <div style="position:absolute;left:18px;top:18px;background:white;padding:9px 12px;border-radius:9px;z-index:2"><b>실시간 위치 지도</b><br><span class="muted">기사 앱에서 수신한 좌표 기준</span></div>
+      <span class="pin p1" onclick="focusDriver('김민수','12가3456','운행 중','4 / 15','37.4979','127.0276')">🚚 김민수 · 12가3456</span>
+      <span class="pin p2" onclick="focusDriver('이서준','34나5678','출발 대기','3 / 14','37.5145','127.1059')">🚚 이서준 · 34나5678</span>
+      <span class="pin p3" onclick="focusDriver('박지훈','56다9012','운행 중','10 / 17','37.3943','127.1112')">🚚 박지훈 · 56다9012</span>
+    </div>
+    <div id="coordinateArea" class="panel">
+      <div style="display:flex;justify-content:space-between"><h3 style="margin:0">선택 기사 위치 정보</h3><span class="badge" id="liveState">운행 중</span></div>
+      <p><b id="liveDriver">김민수 · 12가3456</b> &nbsp; 배송 진행 <span id="liveProgress">4 / 15</span></p>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div class="card"><span class="muted">위도</span><br><b id="lat">37.4979</b></div>
+        <div class="card"><span class="muted">경도</span><br><b id="lng">127.0276</b></div>
+        <div class="card"><span class="muted">마지막 수신</span><br><b>21초 전</b></div>
+      </div>
+      <p class="muted">기사 앱에서 전송되는 GPS 좌표를 기준으로 현재 위치를 표시합니다.</p>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel" id="deliveryEventArea"><h3>배송 이슈·완료 현황</h3>
+      <p>● 새봄마트 강남점 <span class="badge">완료</span></p>
+      <p>● 행복푸드 송파점 <span class="badge">완료</span></p>
+      <p>🟠 늘봄카페 성수점 <span class="badge wait">사진 누락</span></p>
+    </div>
+    <div class="panel"><h3>배송 경로 · 김민수</h3><p>① 새봄마트 강남점 <span class="badge">완료</span></p><p>② 행복푸드 송파점 <span class="badge">완료</span></p><p>③ 늘봄카페 성수점 <span class="badge wait">배송 중</span></p></div>
+  </div>
+</div>
+</section>
+<section id="today" class="page">
+<div id="todaySummary" class="cards">
+  <div class="card">전체 배송 건수 <span class="num">85</span><br><span class="muted">기사 6명 배정</span></div>
+  <div class="card">배송 완료 <span class="num">23</span><br><span class="muted">완료율 27%</span><div style="height:5px;background:#e4ece8;border-radius:5px;margin-top:8px"><div style="width:27%;height:100%;background:#28a879;border-radius:5px"></div></div></div>
+  <div class="card">진행 중 <span class="num">5</span><br><span class="muted">현재 운행 기사</span></div>
+  <div class="card">이상 발생 <span class="num">2</span><br><span class="muted">사진 누락 2</span></div>
+</div>
+
+<div class="panel" id="todayDriverArea">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div><h3 style="margin:0 0 5px">기사 위치·배송 현황</h3><p class="muted" style="margin:0">기사별 현재 위치와 배송 진행률을 한 화면에서 확인합니다.</p></div>
+    <span class="badge">실시간 현황</span>
+  </div>
+  <table style="margin-top:14px"><thead><tr><th>기사·차량</th><th>배송 진행</th><th>현재 상태</th><th>현재/다음 매장</th><th>현재 위치</th><th>마지막 갱신</th></tr></thead><tbody>
+  <tr><td><b>김민수</b><br><span class="muted">12가3456</span></td><td><b>4 / 15</b><br><span class="muted">27% 완료</span></td><td>🔵 배송 중</td><td>새봄마트 강남점</td><td>서울 강남구 역삼동 인근</td><td>14초 전</td></tr>
+  <tr><td><b>이서준</b><br><span class="muted">34나5678</span></td><td><b>3 / 14</b><br><span class="muted">21% 완료</span></td><td>⚪ 대기</td><td>행복푸드 송파점</td><td>위치 미수신</td><td>위치 없음</td></tr>
+  <tr><td><b>박지훈</b><br><span class="muted">56다9012</span></td><td><b>10 / 17</b><br><span class="muted">59% 완료</span></td><td>🔵 배송 중</td><td>늘봄카페 성수점</td><td>서울 성동구 성수동 인근</td><td>18초 전</td></tr>
+  <tr><td><b>최유진</b><br><span class="muted">78라3456</span></td><td><b>1 / 14</b><br><span class="muted">7% 완료</span></td><td>🔵 배송 중</td><td>청년마트 분당점</td><td>경기 성남시 분당구 인근</td><td>30초 전</td></tr>
+  </tbody></table>
+</div>
+
+<div class="panel" id="todayExplain" style="background:#effaf4;border-color:#b8e5ce">
+  <b>오늘 운영에서 한눈에 확인할 수 있습니다.</b>
+  <p class="muted">전체 배송 건수와 완료율을 먼저 확인하고, 아래 기사별 현황에서 현재 배송 진행 상태와 마지막 수신 위치를 함께 확인할 수 있습니다.</p>
+</div>
+</section></main>
+<aside class="guide"><h2>TMS 사용 가이드</h2><p>기능을 선택하면 실제 화면으로 이동해 사용 위치와 방법을 단계별로 안내합니다.</p><div id="steps"></div><hr><h3 id="guideTitle"></h3><p id="guideText"></p><div class="tourbuttons"><button id="prev" class="btn">← 이전</button><button id="next" class="btn primary">다음 →</button></div></aside></div>
+<div id="modal" class="modal"><div class="modalbox"><h3 id="modalTitle"></h3><div id="modalFields"></div><button id="saveModal" class="btn primary">저장</button> <button id="closeModal" class="btn">취소</button></div></div><script>const tours=[
+["오늘 운영 · 전체 배송 현황","today","todaySummary","전체 배송 건수, 완료 건수와 완료율, 진행 중 기사, 이상 발생 현황을 한눈에 확인합니다.","","오늘 운영","오늘 전체 배송과 기사 운영 상황을 빠르게 파악"],
+["오늘 운영 · 기사 위치 현황","today","todayDriverArea","기사별 현재 위치, 배송 진행률, 현재·다음 매장과 마지막 위치 갱신 시점을 확인합니다.","","오늘 운영","오늘 전체 배송과 기사 운영 상황을 빠르게 파악"],
+
+["당일 배차 · 엑셀 업로드","dispatch","excelUploadArea","엑셀 양식으로 매장명과 담당 기사를 입력해 배송 매장을 일괄 등록합니다.","excel","당일 배차","오늘 배송할 매장을 3가지 방식으로 등록하고 기사에게 배정"],
+["당일 배차 · 매장명 붙여넣기","dispatch","pasteArea","매장명을 한 줄씩 붙여넣어 기존 거래처와 자동 매칭하고 담당 기사를 지정합니다.","paste","당일 배차","오늘 배송할 매장을 3가지 방식으로 등록하고 기사에게 배정"],
+["당일 배차 · 매장 직접 선택","dispatch","directArea","거래처 목록에서 배송할 매장을 직접 선택하고 담당 기사를 지정합니다.","direct","당일 배차","오늘 배송할 매장을 3가지 방식으로 등록하고 기사에게 배정"],
+["당일 배차 · 차편 할당","dispatch","assignBtn","선택한 매장을 기사·차량에 배정해 오늘 배송에 추가합니다.","direct","당일 배차","오늘 배송할 매장을 3가지 방식으로 등록하고 기사에게 배정"],
+
+["배정 현황 · 당일 배차 결과","assign","assignedDrivers","당일 배차에서 등록된 기사·차량별 매장 수와 완료·대기 현황을 확인합니다.","","배정 현황","배정 결과 확인, 매장 선택, 빠른 배송 및 매장 전용 링크 관리"],
+["배정 현황 · 매장 선택","assign","assignTable","배정된 매장을 선택하면 우측에서 해당 매장의 배송 정보를 확인할 수 있습니다.","","배정 현황","배정 결과 확인, 매장 선택, 빠른 배송 및 매장 전용 링크 관리"],
+["배정 현황 · 빠른 배송 지정","assign","priorityArea","선택한 매장을 빠른 배송으로 지정해 배송 우선순위를 높일 수 있습니다.","","배정 현황","배정 결과 확인, 매장 선택, 빠른 배송 및 매장 전용 링크 관리"],
+["배정 현황 · 매장 전용 링크","assign","linkArea","매장 전용 배송조회 링크를 복사해 기사 위치와 배송 진행 상태를 매장과 공유합니다.","","배정 현황","배정 결과 확인, 매장 선택, 빠른 배송 및 매장 전용 링크 관리"],
+
+["ERP 자동 연동 · 자동 배차","erp","erpBenefit","ERP 주문을 자동 수집해 기사·차량 배차에 반영하므로 반복적인 수동 배차를 줄일 수 있습니다.","","ERP 자동 연동","ERP 주문을 자동 수집해 수동 배차 없이 당일 배차에 반영"],
+["ERP 자동 연동 · 지원 ERP","erp","erpSupported","현재 자동 연동을 지원하는 ERP는 키친보드와 이카운트입니다.","","ERP 자동 연동","ERP 주문을 자동 수집해 수동 배차 없이 당일 배차에 반영"],
+["ERP 자동 연동 · 추가 연동 요청","erp","erpRequest","다른 ERP를 사용 중이라면 추가 연동을 요청할 수 있습니다.","","ERP 자동 연동","ERP 주문을 자동 수집해 수동 배차 없이 당일 배차에 반영"],
+
+["실시간 관제 · 기사 배송 상태","live","driverStatusArea","기사별 운행 여부와 현재 배송 진행률을 실시간으로 확인합니다.","","실시간 관제","기사 배송 상태와 실시간 위치, 배송 이슈를 확인"],
+["실시간 관제 · 위치 지도","live","liveMap","기사 앱에서 수신한 위치를 지도에서 확인합니다.","","실시간 관제","기사 배송 상태와 실시간 위치, 배송 이슈를 확인"],
+
+["실시간 관제 · 배송 이슈","live","deliveryEventArea","배송 완료, 지연, 사진 누락 등 현장 상태를 확인합니다.","","실시간 관제","기사 배송 상태와 실시간 위치, 배송 이슈를 확인"],
+
+["거래처 관리 · 엑셀 일괄 생성","stores","storeExcelArea","엑셀 양식을 이용해 여러 거래처와 매장을 한 번에 생성합니다.","","거래처 관리","매장 일괄 생성, 생성된 매장 확인 및 정보 수정"],
+["거래처 관리 · 매장 리스트","stores","storeListArea","생성된 매장의 주소, 배송호차, 적치 정보 등록 상태를 확인합니다.","","거래처 관리","매장 일괄 생성, 생성된 매장 확인 및 정보 수정"],
+["거래처 관리 · 정보 수정","stores","storeEditArea","매장을 선택해 전화번호, 주소, 적치 특이사항 등을 수정합니다.","","거래처 관리","매장 일괄 생성, 생성된 매장 확인 및 정보 수정"],
+
+["기사 관리 · 계정 생성","drivers","driverCreateArea","기사 앱에서 사용할 계정과 차량 정보를 생성합니다.","","기사 관리","기사 계정 생성, 정보 변경, PIN 리셋 및 계정 상태 관리"],
+["기사 관리 · 계정 변경","drivers","driverAccountArea","등록된 기사의 전화번호, 차량번호 등 정보를 변경합니다.","","기사 관리","기사 계정 생성, 정보 변경, PIN 리셋 및 계정 상태 관리"],
+["기사 관리 · 계정 리셋","drivers","driverResetArea","로그인 문제가 있을 때 임시 PIN을 재발급하고 계정 상태를 관리합니다.","","기사 관리","기사 계정 생성, 정보 변경, PIN 리셋 및 계정 상태 관리"]
+];
+let idx=0;
+const meta={stores:["거래처 관리","거래하는 매장과 배송 정보를 관리합니다."],drivers:["기사 관리","기사 계정과 차량, 근무 상태를 관리합니다."],dispatch:["당일 배송 설정","배송 매장을 등록하고 담당 기사에게 배정합니다."],assign:["당일 배정 현황","기사·차량별 배정과 배송 순서를 확인합니다."],erp:["ERP 자동 연동","ERP 주문을 수집해 기사별 배차에 반영합니다."],live:["실시간 관제","차량 위치와 배송 진행 상황을 실시간 확인합니다."],today:["오늘의 배송 현황","오늘의 배차, 기사 상태와 예외 상황을 확인합니다."]};
+const $=id=>document.getElementById(id);
+function page(id){document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.toggle("active",x.dataset.page===id));$("title").textContent=meta[id][0];$("desc").textContent=meta[id][1]}
+function tour(i){let oldTip=$("floatingTip");if(oldTip){oldTip.classList.remove("tip-visible");oldTip.classList.add("tip-leave");}idx=(i+tours.length)%tours.length;document.querySelectorAll(".highlight").forEach(x=>x.classList.remove("highlight"));document.querySelectorAll(".step").forEach((x,j)=>x.classList.toggle("active",j===idx));let t=tours[idx];page(t[1]);if(t[1]==="dispatch" && t[4])showDispatchTab(t[4]);$("guideTitle").textContent=(idx+1)+". "+t[0];$("guideText").textContent=t[3];setTimeout(()=>{let e=$(t[2]);if(e){
+ document.querySelectorAll(".guide-highlight").forEach(x=>x.classList.remove("guide-highlight"));
+ e.classList.add("highlight","guide-highlight");e.scrollIntoView({behavior:"smooth",block:"center"});
+ $("tourProgress").textContent=(idx+1)+" / "+tours.length;
+ $("tourBottomTitle").textContent=t[0];$("tourBottomText").textContent=t[3];
+ $("tipKicker").textContent="STEP "+(idx+1);$("tipTitle").textContent=t[0];$("tipText").textContent=t[3];
+ setTimeout(()=>positionTip(e),680);
+}} ,180)}
+let grouped="",lastGroup="";
+tours.forEach((t,i)=>{let group=t[5]||"기타";if(group!==lastGroup){if(lastGroup)grouped+="</div>";grouped+=`<div class="guide-group"><div class="guide-group-title"><span>${group}</span></div><div class="guide-group-summary">${t[6]||""}</div>`;lastGroup=group;}let short=t[0].includes(" · ")?t[0].split(" · ")[1]:t[0];grouped+=`<div class="step" data-i="${i}"><b>${short}</b><small>${t[3]}</small></div>`;});if(lastGroup)grouped+="</div>";$("steps").innerHTML=grouped;
+document.querySelectorAll(".step").forEach(x=>x.onclick=()=>tour(+x.dataset.i));document.querySelectorAll(".nav button").forEach(x=>x.onclick=()=>page(x.dataset.page));$("next").onclick=()=>tour(idx+1);$("prev").onclick=()=>tour(idx-1);
+function openModal(type){$("modal").classList.add("show");$("modal").dataset.type=type;$("modalTitle").textContent=type==="store"?"거래처 직접 등록":"기사 등록";$("modalFields").innerHTML=type==="store"?'<div class="field">매장명<br><input id="f1" value="그린키친 역삼점"></div><div class="field">주소<br><input id="f2" value="서울 강남구 역삼로 120"></div>':'<div class="field">기사명<br><input id="f1" value="박도윤"></div><div class="field">차량번호<br><input id="f2" value="45마6789"></div>'}
+$("addStore").onclick=()=>openModal("store");$("addDriver").onclick=()=>openModal("driver");$("closeModal").onclick=()=>$("modal").classList.remove("show");
+$("saveModal").onclick=()=>{let a=$("f1").value,b=$("f2").value;if($("modal").dataset.type==="managedDriver"){$("driverName").textContent=a;$("driverCar").textContent=b;alert("데모: 기사 정보가 수정되었습니다.")}else if($("modal").dataset.type==="managedStore"){$("managedName").textContent=a;$("managedAddress").textContent=b;alert("데모: 매장 정보가 수정되었습니다.")}else if($("modal").dataset.type==="store"){$("storeRows").insertAdjacentHTML("beforeend",`<tr><td>${a}</td><td>${b}</td><td>미등록</td><td><span class="badge">등록 완료</span></td></tr>`);$("storeCount").textContent=+$("storeCount").textContent+1}else{$("driverRows").insertAdjacentHTML("beforeend",`<tr><td>${a}</td><td>${b}</td><td>driver008</td><td><span class="badge wait">대기</span></td></tr>`);$("driverCount").textContent=+$("driverCount").textContent+1}$("modal").classList.remove("show")};
+$("assignBtn").onclick=()=>{alert("데모: 선택한 기사에게 배송 매장을 배정했습니다.");page("assign")};$("erpSave").onclick=()=>alert("데모: ERP 계정이 저장되었습니다.");
+
+
+
+
+
+
+function selectManagedDriver(name,phone,car,login,state,row){
+ document.querySelectorAll("#driverRows tr").forEach(x=>x.classList.remove("selected"));if(row)row.classList.add("selected");
+ $("driverName").textContent=name;$("driverPhone").textContent=phone;$("driverCar").textContent=car;$("driverLogin").textContent=login;
+}
+function editDriver(){
+ $("modal").classList.add("show");$("modal").dataset.type="managedDriver";$("modalTitle").textContent="기사 정보 수정";
+ $("modalFields").innerHTML='<div class="field">기사명<br><input id="f1" value="'+$("driverName").textContent+'"></div><div class="field">차량번호<br><input id="f2" value="'+$("driverCar").textContent+'"></div>';
+}
+function resetPin(){alert("데모: 임시 PIN이 재발급되었습니다. 기사님께 새 PIN을 전달해 주세요.");$("pinResetBtn").textContent="✓ PIN 재발급 완료";setTimeout(()=>$("pinResetBtn").textContent="임시 PIN 재발급",1500);}
+function toggleDriver(){let b=$("disableDriverBtn");let off=b.textContent.includes("비활성화");b.textContent=off?"계정 활성화":"계정 비활성화";$("driverActive").textContent=off?"계정 비활성":"계정 활성";alert("데모: 기사 계정 상태가 변경되었습니다.");}
+function bulkStoreUpload(){alert("데모: 엑셀에서 거래처 24개를 확인했습니다. 매장 목록에 일괄 생성합니다.");}
+function selectManagedStore(name,code,address,phone,note,row){
+ document.querySelectorAll("#storeRows tr").forEach(x=>x.classList.remove("selected"));if(row)row.classList.add("selected");
+ $("managedName").textContent=name;$("managedCode").textContent=code;$("managedAddress").textContent=address;$("managedPhone").textContent=phone;$("managedNote").textContent=note;
+}
+function editManagedStore(){
+ $("modal").classList.add("show");$("modal").dataset.type="managedStore";$("modalTitle").textContent="매장 정보 수정";
+ $("modalFields").innerHTML='<div class="field">매장명<br><input id="f1" value="'+$("managedName").textContent+'"></div><div class="field">주소<br><input id="f2" value="'+$("managedAddress").textContent+'"></div>';
+}
+function focusDriver(name,car,state,progress,lat,lng){
+ $("liveDriver").textContent=name+" · "+car;
+ $("liveState").textContent=state;
+ $("liveProgress").textContent=progress;
+ $("lat").textContent=lat;
+ $("lng").textContent=lng;
+ document.querySelectorAll("#driverStatusArea .step").forEach(x=>x.classList.toggle("active",x.textContent.includes(name)));
+}
+function requestERP(){alert("데모: ERP 추가 연동 요청이 접수되었습니다. 실제 운영 시 담당자가 사용 ERP와 연동 가능 여부를 확인합니다.");}
+function selectStore(name,address,driver,car,row){
+ document.querySelectorAll("#assignTable tbody tr").forEach(x=>x.classList.remove("selected")); if(row)row.classList.add("selected");
+ $("detailName").textContent=name;$("detailAddress").textContent=address;$("detailDriver").textContent=driver;$("detailCar").textContent=car;
+ $("storeLink").value="https://demo-tms.local/track/"+encodeURIComponent(name);
+}
+function selectRoute(driver,car){$("routeTitle").textContent=car+" 배정 매장";$("detailDriver").textContent=driver;$("detailCar").textContent=car;}
+function priority(){let b=$("priorityBtn");b.textContent="✓ 빠른 배송 지정됨";b.style.background="#16845c";alert("데모: 선택한 매장을 빠른 배송으로 지정했습니다.");}
+function copyStoreLink(){let v=$("storeLink").value;if(navigator.clipboard)navigator.clipboard.writeText(v);$("copyLink").textContent="✓ 링크 복사 완료";setTimeout(()=>$("copyLink").textContent="매장 링크 복사",1400);}
+function showDispatchTab(name){
+ document.querySelectorAll(".dcontent").forEach(e=>e.style.display="none");
+ document.querySelectorAll(".dtab").forEach(e=>e.classList.remove("primary"));
+ const map={excel:["dispatchExcel","tabExcel"],paste:["dispatchPaste","tabPaste"],direct:["dispatchDirect","tabDirect"]};
+ $(map[name][0]).style.display="block";$(map[name][1]).classList.add("primary");
+}
+function demoUpload(){alert("데모: 엑셀에서 85개 배송 매장을 불러왔습니다.");}
+function matchStores(){alert("데모: 입력한 매장명을 거래처 정보와 매칭하고 담당 기사를 저장했습니다.");}
+function updateChecks(){let n=document.querySelectorAll(".storeCheck:checked").length;$("selectedCount").textContent=n+"개";}
+document.addEventListener("change",e=>{if(e.target.classList.contains("storeCheck"))updateChecks()});
+function clearChecks(){document.querySelectorAll(".storeCheck").forEach(x=>x.checked=false);updateChecks();}
+
+function positionTip(el){
+ const tip=$("floatingTip"),r=el.getBoundingClientRect();
+ tip.classList.remove("tip-visible","tip-leave");
+ tip.style.visibility="hidden";
+ tip.style.display="block";
+ const left=Math.min(window.innerWidth-330,Math.max(285,r.left));
+ let top=r.top-125;if(top<15)top=Math.min(window.innerHeight-180,r.bottom+18);
+ tip.style.transition="none";
+ tip.style.left=left+"px";tip.style.top=top+"px";
+ tip.getBoundingClientRect();
+ requestAnimationFrame(()=>{
+   tip.style.transition="";
+   tip.style.visibility="visible";
+   requestAnimationFrame(()=>tip.classList.add("tip-visible"));
+ });
+}
+$("tourPrev2").onclick=()=>tour(idx-1);$("tourNext2").onclick=()=>tour(idx+1);
+window.addEventListener("resize",()=>{let e=document.querySelector(".guide-highlight");if(e)positionTip(e)});
+tour(0);</script>
+<div id="floatingTip"><div class="kicker" id="tipKicker">STEP</div><b id="tipTitle"></b><p id="tipText"></p></div>
+<div id="tourOverlay">
+  <div class="progress" id="tourProgress">1 / 1</div>
+  <div class="copy"><b id="tourBottomTitle"></b><span id="tourBottomText"></span></div>
+  <div class="actions"><button class="btn" id="tourPrev2">← 이전</button><button class="btn primary" id="tourNext2">다음 →</button></div>
+</div>
+</body></html>

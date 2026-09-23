@@ -1,0 +1,107 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TMS 기사앱 사용 가이드</title><style>*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#eef3f0;color:#162f28}.app{display:grid;grid-template-columns:270px 1fr;height:100vh}.guide{background:#fff;padding:20px 14px;overflow:auto;border-right:1px solid #dce7e1}.guide h1{font-size:21px}.guide p{font-size:12px;color:#71847d}.group{margin:14px 0}.gtitle{font-weight:800;padding:9px 11px}.step{padding:9px 18px;border-radius:8px;cursor:pointer;font-size:13px}.step.active{background:#e7f7ee;color:#08794d;font-weight:800}.stage{padding:20px 30px 95px;overflow:auto}.phone{width:430px;min-height:800px;margin:auto;background:#f7f8fa;border:1px solid #d6dfdb;border-radius:28px;overflow:hidden;box-shadow:0 18px 60px #173b3020;position:relative}.status{height:32px;background:#fff;padding:8px 18px;font-size:12px;display:flex;justify-content:space-between}.screen{display:none;min-height:768px}.screen.active{display:block}.header{background:#fff;padding:20px 18px;font-size:23px;display:flex;justify-content:space-between}.content{padding:14px}.card{background:#fff;border:1px solid #e0e7e3;border-radius:16px;padding:15px;margin:10px 0}.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}.summary .card{height:120px}.muted{color:#77847f;font-size:13px}.big{font-size:27px;font-weight:800}.btn{padding:11px 15px;border:1px solid #9ba9a3;border-radius:22px;background:#fff;font-weight:700;cursor:pointer}.primary{background:#0fa15e;color:#fff;border-color:#0fa15e}.wide{width:100%}.notice{background:#e7f8ee;color:#087d4e;border-radius:12px;padding:14px;font-weight:700}.delivery{display:flex;gap:12px;align-items:center;background:#fff;border-radius:15px;padding:16px;margin:10px 0}.num{width:44px;height:44px;border-radius:50%;background:#edf3fb;display:grid;place-items:center;font-weight:800;font-size:20px}.grow{flex:1}.grow b{display:block}.badge{background:#fff1dc;color:#ae6807;padding:5px 9px;border-radius:14px;font-size:12px}.sheet,.modal{position:absolute;inset:0;background:#0007;display:none;z-index:8}.sheet.show,.modal.show{display:flex}.sheet{align-items:flex-end}.sheetbox{width:100%;background:#fff;border-radius:24px 24px 0 0;padding:20px;min-height:540px}.modal{align-items:center;justify-content:center}.modalbox{width:86%;background:#fff;border-radius:22px;padding:24px}.detail{padding:18px}.photo{height:170px;background:#edf1f4;border-radius:15px;display:grid;place-items:center;color:#77848e}.guide-highlight{outline:4px solid #15a466!important;box-shadow:0 0 0 8px #15a46620!important;position:relative;z-index:5}#tip{position:fixed;width:310px;background:#123f34;color:#fff;padding:14px;border-radius:12px;z-index:30;opacity:0;visibility:hidden;transform:translateY(26px) scale(.965);filter:blur(3px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform 1.05s cubic-bezier(.16,1,.3,1),filter .78s cubic-bezier(.16,1,.3,1);box-shadow:0 14px 40px #0004}#tip.visible{opacity:1;visibility:visible;transform:none;filter:none}#tip small{opacity:.65}#tip b{display:block;margin:5px 0}#tip p{font-size:12px;line-height:1.5;margin:0;color:#e4efeb}.bottom{position:fixed;left:270px;right:0;bottom:0;height:72px;background:#fff;border-top:1px solid #dce7e1;display:flex;align-items:center;padding:10px 28px;gap:15px;z-index:20}.bottom .copy{flex:1}.bottom span{font-size:12px;color:#71847d}.actions{display:flex;gap:7px}</style>
+<style>
+.summary .card{height:138px!important;display:flex;flex-direction:column;overflow:hidden}
+#workBtn{margin-top:auto!important;width:100%!important;padding:9px 10px!important}
+.phone{height:800px!important;min-height:800px!important;position:relative!important;overflow:hidden!important}
+.screen{position:absolute!important;inset:32px 0 0 0!important;height:768px!important;min-height:0!important;overflow-y:auto!important}
+.statusbar{position:absolute!important;left:0;right:0;top:0;z-index:30}
+.sheet,.modal{position:absolute!important;inset:32px 0 0 0!important;height:768px!important;width:100%!important;z-index:800!important}
+.sheet{align-items:center!important;justify-content:center!important}
+.sheetbox{width:88%!important;min-height:0!important;max-height:690px!important;overflow-y:auto!important;margin:0!important;border-radius:24px!important;transform:translateY(18px) scale(.98);opacity:0;transition:transform .52s cubic-bezier(.16,1,.3,1),opacity .38s ease}
+.sheet.show .sheetbox{transform:translateY(0) scale(1);opacity:1}
+#todaySheet .sheetbox{min-height:500px!important}#photoSheet .sheetbox{min-height:330px!important}
+.modal{align-items:center!important;justify-content:center!important}.modalbox{max-height:690px!important;overflow-y:auto!important}
+/* v1 말풍선 스타일/위치 체계는 그대로 유지 */
+</style>
+
+<style>
+/* v16: '오늘 배송' 중앙 팝업 폭 축소 */
+#todaySheet .sheetbox{
+ width:76%!important;
+ max-width:330px!important;
+ min-height:470px!important;
+ padding:18px!important;
+}
+#todaySheet .sheetbox h2{font-size:22px!important;margin:4px 0 14px!important}
+#todaySheet .card{padding:13px!important}
+</style>
+</head><body>
+<div class="app"><aside class="guide"><h1>기사앱 사용 가이드</h1><p>기능을 선택하면 실제 앱 화면으로 이동해 사용 위치와 방법을 안내합니다.</p><div id="steps"></div></aside><main class="stage"><h2>키친보드 배송 · 기사앱</h2><div class="phone"><div class="status"><span>3:28</span><span>Wi-Fi　83% 🔋</span></div>
+<section id="home" class="screen active"><div class="header"><span>키친보드 배송</span><span>↻</span></div><div class="content"><div class="card"><b>🚦 다음 배송지까지 약 19분 · 교통 정체</b><div class="muted">새봄푸드 강남점 · 4.1km</div></div><div class="summary"><div class="card"><span class="muted">근무 상태</span><div class="big" id="workState">준비</div><br><button id="workBtn" class="btn wide">근무 시작</button></div><div class="card"><span class="muted">오늘 배송</span><div class="big">6곳</div></div></div><div id="locationNotice" class="notice">📍 배송 시작 후 위치가 공유됩니다</div><br><button id="startDelivery" class="btn primary wide">▶ 오늘 배송 시작</button><div id="orderHelp" class="card"><b>🛣️ 출발 전 오늘 배송 코스를 확인해 주세요</b><button id="orderBtn" class="btn" style="float:right">순서 수정</button><div class="muted">필요한 경우 매장 순서를 수정할 수 있습니다.</div></div><h3>오늘 배송지 (6곳)</h3><div id="deliveryList"></div></div></section>
+<section id="order" class="screen"><div class="header"><span class="back">×</span><b>배송 순서 수정</b><span></span></div><div class="content"><p class="muted">원형 번호를 누르거나 목록을 끌어 이동하세요.</p><div id="orderList"></div><div style="height:190px"></div><button id="saveOrder" class="btn primary wide">✓ 모든 순서 수정 완료</button></div></section>
+<section id="detail" class="screen"><div class="header"><span class="back">←</span><b>배송지 상세</b><span></span></div><div class="detail"><h2>새봄푸드 강남점</h2><p>📍 서울 강남구 언주로154길 10</p><div id="detailInfo" class="card">☎ 연락처 02-555-1234</div><div class="card"><b>ⓘ 배송 요청사항</b><p>후문 주방 입구에 적치해 주세요.</p></div><h3>적치 장소</h3><div class="photo">등록된 적치 참고 사진 영역</div></div></section>
+<div id="startModal" class="modal"><div class="modalbox"><div style="text-align:center;font-size:35px">📍</div><h2 style="text-align:center">오늘 배송을 시작할까요?</h2><p>배송을 시작하면 배송 종료 전까지 위치가 공유됩니다.</p><div style="text-align:right"><button class="btn close">취소</button> <button id="confirmStart" class="btn primary">오늘 배송 시작</button></div></div></div>
+<div id="todaySheet" class="sheet"><div class="sheetbox"><div style="display:flex;justify-content:space-between"><h2>오늘 배송</h2><button class="btn close">×</button></div><div class="notice">🚚 진행 중 <b style="float:right">0 / 6</b></div><h3>현재 배송지</h3><div class="card"><b>① 새봄푸드 강남점</b><p>서울 강남구 언주로154길 10</p><div style="display:flex;gap:8px"><button class="btn" style="flex:1">☎ 전화</button><button id="detailBtn" class="btn" style="flex:1">▤ 상세정보</button></div><button id="photoBtn" class="btn primary wide" style="margin-top:12px">📷 적치 사진 촬영</button><button id="failBtn" class="btn wide" style="margin-top:8px;color:#c33">⚠ 배송 불가</button></div></div></div>
+<div id="photoSheet" class="sheet"><div class="sheetbox" style="min-height:350px"><h2>적치 사진 모아 전송</h2><p>0/5장 선택 · 사진을 모두 추가한 뒤 완료하세요.</p><div style="display:flex;gap:8px"><button class="btn" style="flex:1">📷 카메라로 추가</button><button class="btn" style="flex:1">▣ 앨범에서 추가</button></div><button class="btn wide" style="margin-top:20px" disabled>0장 전송하고 배송 완료</button><button class="btn wide close">취소</button></div></div>
+<div id="failModal" class="modal"><div class="modalbox"><div style="text-align:center;color:#c33;font-size:30px">⚠</div><h2 style="text-align:center">배송 불가 사유 입력</h2><b>배송이 불가능한 사유를 입력해 주세요.</b><textarea style="width:100%;height:120px;border:2px solid #0fa15e;margin-top:12px;padding:10px" placeholder="예: 매장 휴무, 연락 불가, 진입 불가"></textarea><p class="muted">사유를 입력해야 다음 배송지로 넘어갈 수 있습니다.</p><div style="text-align:right"><button class="btn close">취소</button> <button class="btn" style="background:#df3434;color:white">배송 불가 처리</button></div></div></div>
+</div></main></div><div id="tip"><small id="tipStep"></small><b id="tipTitle"></b><p id="tipText"></p></div><div class="bottom"><span id="progress"></span><div class="copy"><b id="bottomTitle"></b><span id="bottomText"></span></div><div class="actions"><button id="prev" class="btn">← 이전</button><button id="next" class="btn primary">다음 →</button></div></div><script>const $=x=>document.getElementById(x);
+const stores=[["새봄푸드 강남점","서울 강남구 언주로154길 10"],["잇샐러드 용산점","서울 용산구 한강대로23길 55"],["마마스푸드 부천점","경기 부천시 오정구 석천로 397"],["서원F&B","서울 성북구 동소문로 315"],["쇼미더크랩 명동점","서울 중구 명동4길 46"],["쇼미더크랩 압구정점","서울 강남구 압구정로28길 22"]];
+const rows=()=>stores.map((s,i)=>`<div class="delivery"><span class="num">${i+1}</span><div class="grow"><b>${s[0]}</b><span class="muted">${s[1]}</span></div><span class="badge">배송 대기</span><span>≡</span></div>`).join("");$("deliveryList").innerHTML=rows();$("orderList").innerHTML=rows();
+const tours=[
+["근무 시작","home","workBtn","배송 업무 시작 전 근무 상태를 시작으로 변경합니다.","시작하기"],
+["오늘 배송 시작","home","startDelivery","오늘 배송 시작을 누르면 위치 공유 안내 후 배송을 시작합니다.","시작하기"],
+["위치 공유 안내","home","locationNotice","배송 시작 이후 배송 종료 전까지 기사 위치가 공유됩니다.","시작하기"],
+["배송지 목록 확인","home","deliveryList","오늘 배정된 배송지와 배송 순서를 확인합니다.","배송 진행"],
+["배송 순서 수정","order","orderList","출발 전 필요한 경우 배송 순서를 변경하고 저장합니다.","배송 진행"],
+["현재 배송지 확인","home","todaySheet","배송 시작 후 현재 배송지에서 전화, 상세정보, 완료 업무를 진행합니다.","배송 진행","today"],
+["배송지 상세정보","detail","detailInfo","매장 주소, 연락처, 배송 요청사항과 적치 참고 정보를 확인합니다.","매장 확인"],
+["적치 사진 촬영","home","photoSheet","배송 완료 전 적치 사진을 카메라 또는 앨범에서 추가해 전송합니다.","배송 완료","photo"],
+["배송 불가 처리","home","failModal","배송이 불가능하면 사유를 입력하고 다음 배송지로 넘어갑니다.","예외 처리","fail"]
+];let idx=0,last="",h="";
+tours.forEach((t,i)=>{if(t[4]!==last){if(last)h+="</div>";h+=`<div class="group"><div class="gtitle">${t[4]}</div>`;last=t[4]}h+=`<div class="step" data-i="${i}">${t[0]}</div>`});h+="</div>";$("steps").innerHTML=h;
+function screen(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active")}
+function closeAll(){document.querySelectorAll(".sheet,.modal").forEach(x=>x.classList.remove("show"))}
+function positionTip(el){
+ const tip=$("tip"),r=el.getBoundingClientRect();
+ tip.classList.remove("visible");
+ tip.style.visibility="hidden";
+ tip.style.display="block";
+ tip.style.transition="none";
+
+ const tw=310;
+ tip.style.width=tw+"px";
+ tip.style.left="0px";tip.style.top="0px";
+ tip.getBoundingClientRect();
+ const th=Math.max(82,tip.offsetHeight||90);
+ const gap=18, edge=16, bottomSafe=86;
+
+ // 모든 단계 공통: 근무 시작과 동일하게 '대상 기능 바로 옆'을 우선.
+ let left=r.right+gap;
+ if(left+tw>window.innerWidth-edge) left=r.left-tw-gap;
+ left=Math.max(edge,Math.min(window.innerWidth-tw-edge,left));
+
+ // 세로 중심을 대상 기능 중심에 맞춘다.
+ let top=r.top+(r.height-th)/2;
+
+ // 화면 경계에 걸리는 경우에만 대상 아래/위로 보정.
+ if(top<edge) top=r.bottom+gap;
+ if(top+th>window.innerHeight-bottomSafe) top=r.top-th-gap;
+ top=Math.max(edge,Math.min(window.innerHeight-th-bottomSafe,top));
+
+ tip.style.left=left+"px";
+ tip.style.top=top+"px";
+ tip.getBoundingClientRect();
+ requestAnimationFrame(()=>{
+   tip.style.transition="";
+   tip.style.visibility="visible";
+   requestAnimationFrame(()=>tip.classList.add("visible"));
+ });
+}
+function tour(i){idx=(i+tours.length)%tours.length;$("tip").classList.remove("visible");closeAll();document.querySelectorAll(".guide-highlight").forEach(x=>x.classList.remove("guide-highlight"));document.querySelectorAll(".step").forEach((x,j)=>x.classList.toggle("active",j===idx));let t=tours[idx];screen(t[1]);if(t[5]==="today")$("todaySheet").classList.add("show");
+if(t[5]==="photo")$("photoSheet").classList.add("show");
+if(t[5]==="fail")$("failModal").classList.add("show");
+if(t[5]==="orderselect")$("orderClickHint").textContent="① 순서를 변경할 배송지를 먼저 클릭하세요.";
+if(t[5]==="orderselected"){$("orderClickHint").textContent="② 선택한 배송지를 원하는 위치로 이동하세요.";let first=document.querySelector("#orderList .delivery");if(first)first.classList.add("guide-highlight");}$("progress").textContent=(idx+1)+" / "+tours.length;$("bottomTitle").textContent=t[0];$("bottomText").textContent=t[3];$("tipStep").textContent="STEP "+(idx+1);$("tipTitle").textContent=t[0];$("tipText").textContent=t[3];setTimeout(()=>{let e=$(t[2]);if(e){e.classList.add("guide-highlight");
+let sc=document.querySelector(".screen.active");
+if(sc && sc.contains(e)){
+ const er=e.getBoundingClientRect(),sr=sc.getBoundingClientRect();
+ sc.scrollBy({top:(er.top+er.height/2)-(sr.top+sr.height/2),behavior:"smooth"});
+}
+setTimeout(()=>positionTip(e),650)}},180)}
+document.querySelectorAll("#orderList .delivery").forEach(row=>row.onclick=()=>{
+ document.querySelectorAll("#orderList .delivery").forEach(x=>x.classList.remove("guide-highlight"));
+ row.classList.add("guide-highlight");
+ $("orderClickHint").textContent="② 선택 완료 · 원하는 위치로 이동하세요.";
+});
+document.querySelectorAll(".step").forEach(x=>x.onclick=()=>tour(+x.dataset.i));$("prev").onclick=()=>tour(idx-1);$("next").onclick=()=>tour(idx+1);
+$("workBtn").onclick=()=>{$("workState").textContent="근무 중";$("workBtn").textContent="근무 중"};$("startDelivery").onclick=()=>$("startModal").classList.add("show");$("confirmStart").onclick=()=>{closeAll();$("workState").textContent="근무 중";$("locationNotice").textContent="📍 배송 중 · 위치 공유 중";$("todaySheet").classList.add("show")};$("orderBtn").onclick=()=>screen("order");$("saveOrder").onclick=()=>{alert("데모: 배송 순서가 저장되었습니다.");screen("home")};$("detailBtn").onclick=()=>{closeAll();screen("detail")};$("photoBtn").onclick=()=>{closeAll();$("photoSheet").classList.add("show")};$("failBtn").onclick=()=>{closeAll();$("failModal").classList.add("show")};document.querySelectorAll(".close").forEach(x=>x.onclick=closeAll);document.querySelectorAll(".back").forEach(x=>x.onclick=()=>screen("home"));tour(0);</script></body></html>

@@ -25,6 +25,44 @@
 #todaySheet .sheetbox h2{font-size:22px!important;margin:4px 0 14px!important}
 #todaySheet .card{padding:13px!important}
 </style>
+<style>
+@media (max-width: 850px){
+ html,body{width:100%;max-width:100%;overflow-x:hidden}
+ .app{display:block;height:auto;min-height:100dvh}
+ .guide{width:100%;padding:12px;border-right:0;border-bottom:1px solid #dce7e1;overflow:visible}
+ .guide h1{font-size:17px;margin:0 0 7px}
+ .guide p{margin:0 0 10px;line-height:1.4}
+ #steps{display:flex;gap:8px;overflow-x:auto;overscroll-behavior-x:contain;padding-bottom:5px}
+ .group{display:flex;align-items:center;gap:6px;flex:none;margin:0}
+ .gtitle{white-space:nowrap;padding:7px 5px;font-size:12px}
+ .step{white-space:nowrap;padding:9px 12px;background:#f2f5f3}
+ .stage{padding:12px 10px 195px;overflow:visible}
+ .stage h2{font-size:16px;margin:3px 3px 12px}
+ .phone{width:100%!important;max-width:430px;height:min(800px,calc(100dvh - 260px))!important;min-height:450px!important;margin:0 auto;border-radius:22px}
+ .screen{height:calc(100% - 32px)!important;min-height:0!important}
+ .sheet,.modal{height:calc(100% - 32px)!important;bottom:0!important}
+ .sheetbox,.modalbox{max-height:calc(100% - 24px)!important}
+ #todaySheet .sheetbox{min-height:0!important}
+ .delivery{min-width:0;padding:12px;gap:8px}
+ .delivery .grow{min-width:0;overflow-wrap:anywhere}
+ .delivery .badge{white-space:nowrap}
+ #tip{width:calc(100vw - 24px)!important;max-width:430px;max-height:110px;overflow-y:auto;left:12px!important;top:auto!important;bottom:72px!important;padding:10px 12px}
+ #tip b{margin:2px 0}
+ #tip p{font-size:11px;line-height:1.4}
+ .bottom{left:0;right:0;height:64px;padding:7px 12px;gap:9px}
+ .bottom .copy{display:none}
+ .bottom .actions{margin-left:auto}
+ .bottom .btn{padding:9px 12px;white-space:nowrap}
+}
+@media (max-width: 850px) and (max-height: 650px){
+ #tip{display:none!important}
+ .bottom{height:100px;display:grid;grid-template-columns:34px minmax(0,1fr);grid-template-rows:auto auto;gap:4px 8px;align-content:center}
+ .bottom .copy{display:block;min-width:0}
+ .bottom .copy b{display:block;font-size:12px}
+ .bottom .copy span{display:block;font-size:10px;line-height:1.3}
+ .bottom .actions{grid-column:1/-1;justify-content:flex-end}
+}
+</style>
 </head><body>
 <div class="app"><aside class="guide"><h1>기사앱 사용 가이드</h1><p>기능을 선택하면 실제 앱 화면으로 이동해 사용 위치와 방법을 안내합니다.</p><div id="steps"></div></aside><main class="stage"><h2>키친보드 배송 · 기사앱</h2><div class="phone"><div class="status"><span>3:28</span><span>Wi-Fi　83% 🔋</span></div>
 <section id="home" class="screen active"><div class="header"><span>키친보드 배송</span><span>↻</span></div><div class="content"><div class="card"><b>🚦 다음 배송지까지 약 19분 · 교통 정체</b><div class="muted">새봄푸드 강남점 · 4.1km</div></div><div class="summary"><div class="card"><span class="muted">근무 상태</span><div class="big" id="workState">준비</div><br><button id="workBtn" class="btn wide">근무 시작</button></div><div class="card"><span class="muted">오늘 배송</span><div class="big">6곳</div></div></div><div id="locationNotice" class="notice">📍 배송 시작 후 위치가 공유됩니다</div><br><button id="startDelivery" class="btn primary wide">▶ 오늘 배송 시작</button><div id="orderHelp" class="card"><b>🛣️ 출발 전 오늘 배송 코스를 확인해 주세요</b><button id="orderBtn" class="btn" style="float:right">순서 수정</button><div class="muted">필요한 경우 매장 순서를 수정할 수 있습니다.</div></div><h3>오늘 배송지 (6곳)</h3><div id="deliveryList"></div></div></section>

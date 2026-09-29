@@ -40,6 +40,10 @@
 .order-choice{border:1px solid #bad7c8;background:#eef8f2;border-radius:12px;min-height:48px;font-size:18px;font-weight:800;color:#08794d;cursor:pointer}
 .order-choice.current{background:#0fa15e;color:#fff}
 #orderPicker .modalbox{max-width:330px}
+#demoPointer{position:fixed;left:0;top:0;width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 4px 18px #123f3470;display:none;place-items:center;font-size:24px;z-index:1300;pointer-events:none;transform:translate(-50%,-50%)}
+#demoPointer.show{display:grid}
+#demoPointer.press{animation:demoPress .45s ease}
+@keyframes demoPress{50%{scale:.78;box-shadow:0 0 0 14px #15a46640}}
 @media (max-width: 850px){
  html,body{width:100%;max-width:100%;overflow-x:hidden}
  .app{display:block;height:auto;min-height:100dvh}
@@ -87,7 +91,7 @@
 <div id="photoSheet" class="sheet"><div class="sheetbox" style="min-height:350px"><h2>적치 사진 모아 전송</h2><p>0/5장 선택 · 사진을 모두 추가한 뒤 완료하세요.</p><div style="display:flex;gap:8px"><button class="btn" style="flex:1">📷 카메라로 추가</button><button class="btn" style="flex:1">▣ 앨범에서 추가</button></div><button class="btn wide" style="margin-top:20px" disabled>0장 전송하고 배송 완료</button><button class="btn wide close">취소</button></div></div>
 <div id="failModal" class="modal"><div class="modalbox"><div style="text-align:center;color:#c33;font-size:30px">⚠</div><h2 style="text-align:center">배송 불가 사유 입력</h2><b>배송이 불가능한 사유를 입력해 주세요.</b><textarea style="width:100%;height:120px;border:2px solid #0fa15e;margin-top:12px;padding:10px" placeholder="예: 매장 휴무, 연락 불가, 진입 불가"></textarea><p class="muted">사유를 입력해야 다음 배송지로 넘어갈 수 있습니다.</p><div style="text-align:right"><button class="btn close">취소</button> <button class="btn" style="background:#df3434;color:white">배송 불가 처리</button></div></div></div>
 <div id="orderPicker" class="modal"><div class="modalbox"><h2 style="margin-top:0">배송 순서 선택</h2><p id="orderPickerStore" class="muted"></p><div id="orderChoices" class="order-choice-grid"></div><button id="closeOrderPicker" class="btn wide">취소</button></div></div>
-</div></main></div><div id="tip"><small id="tipStep"></small><b id="tipTitle"></b><p id="tipText"></p></div><div class="bottom"><span id="progress"></span><div class="copy"><b id="bottomTitle"></b><span id="bottomText"></span></div><div class="actions"><button id="prev" class="btn">← 이전</button><button id="next" class="btn primary">다음 →</button></div></div><script>const $=x=>document.getElementById(x);
+</div></main></div><div id="demoPointer" aria-hidden="true">👆</div><div id="tip"><small id="tipStep"></small><b id="tipTitle"></b><p id="tipText"></p></div><div class="bottom"><span id="progress"></span><div class="copy"><b id="bottomTitle"></b><span id="bottomText"></span></div><div class="actions"><button id="prev" class="btn">← 이전</button><button id="next" class="btn primary">다음 →</button></div></div><script>const $=x=>document.getElementById(x);
 const stores=[["새봄푸드 강남점","서울 강남구 언주로154길 10"],["잇샐러드 용산점","서울 용산구 한강대로23길 55"],["마마스푸드 부천점","경기 부천시 오정구 석천로 397"],["서원F&B","서울 성북구 동소문로 315"],["쇼미더크랩 명동점","서울 중구 명동4길 46"],["쇼미더크랩 압구정점","서울 강남구 압구정로28길 22"]];
 let deliveryOrder=stores.map((_,i)=>i),pickedStore=null,dragState=null;
 function renderHomeRows(){ $("deliveryList").innerHTML=deliveryOrder.map((id,i)=>{const s=stores[id];return `<div class="delivery"><span class="num">${i+1}</span><div class="grow"><b>${s[0]}</b><span class="muted">${s[1]}</span></div><span class="badge">배송 대기</span></div>`}).join("") }
@@ -99,6 +103,50 @@ function renderOrderRows(animate=false){
 function moveOrder(id,to){const from=deliveryOrder.indexOf(id);if(from<0||to<0||to>=deliveryOrder.length||from===to)return;deliveryOrder.splice(from,1);deliveryOrder.splice(to,0,id);renderOrderRows(true);$("orderClickHint").textContent=`${stores[id][0]}을(를) ${to+1}번으로 이동했습니다.`}
 function closeOrderPicker(){ $("orderPicker").classList.remove("show");if(idx===4)positionTip($("orderList")) }
 function openOrderPicker(id){pickedStore=id;$("orderPickerStore").textContent=stores[id][0];$("orderChoices").innerHTML=deliveryOrder.map((_,i)=>`<button type="button" class="order-choice ${deliveryOrder.indexOf(id)===i?'current':''}" data-position="${i}">${i+1}번</button>`).join("");$("tip").classList.remove("visible");$("orderPicker").classList.add("show")}
+const demoPause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function clearDemoEffects(){
+ $("demoPointer").classList.remove("show","press");document.querySelectorAll(".order-ghost").forEach(el=>el.remove());
+ $("orderList").querySelectorAll(".drag-source,.drop-target").forEach(el=>el.classList.remove("drag-source","drop-target"));
+ $("orderPicker").classList.remove("show");pickedStore=null;
+}
+function stopOrderDemo(restore=false){demoToken++;clearDemoEffects();if(restore&&demoOriginalOrder){deliveryOrder=demoOriginalOrder.slice();renderOrderRows()}demoOriginalOrder=null}
+async function demoMovePointer(x,y,duration=450){
+ const pointer=$("demoPointer"),left=x+"px",top=y+"px";
+ if(!pointer.classList.contains("show")){pointer.style.left=left;pointer.style.top=top;pointer.classList.add("show");return}
+ const animation=pointer.animate([{left:pointer.style.left,top:pointer.style.top},{left,top}],{duration,easing:"ease-in-out"});
+ await animation.finished.catch(()=>{});pointer.style.left=left;pointer.style.top=top;
+}
+async function demoPress(){const pointer=$("demoPointer");pointer.classList.remove("press");void pointer.offsetWidth;pointer.classList.add("press");await demoPause(450);pointer.classList.remove("press")}
+async function runOrderDemo(token){
+ if(window.innerHeight<=650){document.querySelector(".phone").scrollIntoView({block:"start",behavior:"smooth"});await demoPause(450);if(token!==demoToken)return}
+ while(token===demoToken&&idx===4){
+  deliveryOrder=demoOriginalOrder.slice();renderOrderRows();$("order").scrollTo({top:0,behavior:"smooth"});
+  $("orderClickHint").textContent="① ≡ 아이콘을 끌어 배송지를 원하는 위치로 옮깁니다.";
+  $("tip").classList.remove("visible");await demoPause(650);if(token!==demoToken)return;
+  const first=$("orderList").querySelector(".order-delivery"),handle=first.querySelector(".order-handle"),target=$("orderList").children[2];
+  const hr=handle.getBoundingClientRect(),fr=first.getBoundingClientRect(),tr=target.getBoundingClientRect();
+  await demoMovePointer(hr.left+hr.width/2,hr.top+hr.height/2);if(token!==demoToken)return;
+  await demoPress();if(token!==demoToken)return;
+  const ghost=first.cloneNode(true);ghost.classList.add("order-ghost");ghost.style.left=fr.left+"px";ghost.style.top=fr.top+"px";ghost.style.width=fr.width+"px";document.body.append(ghost);
+  first.classList.add("drag-source");target.classList.add("drop-target");
+  const ghostAnimation=ghost.animate([{top:fr.top+"px"},{top:tr.top+"px"}],{duration:1000,easing:"cubic-bezier(.2,.8,.2,1)"});
+  await Promise.all([ghostAnimation.finished.catch(()=>{}),demoMovePointer(hr.left+hr.width/2,hr.top+hr.height/2+tr.top-fr.top,1000)]);
+  ghost.remove();first.classList.remove("drag-source");target.classList.remove("drop-target");if(token!==demoToken)return;
+  moveOrder(deliveryOrder[0],2);await demoPause(600);if(token!==demoToken)return;
+  $("orderClickHint").textContent="② 동그라미 숫자를 누르고 새 배송 순번을 선택합니다.";
+  const pickedId=deliveryOrder[1],number=$("orderList").children[1].querySelector(".order-number"),nr=number.getBoundingClientRect();
+  await demoMovePointer(nr.left+nr.width/2,nr.top+nr.height/2);if(token!==demoToken)return;
+  await demoPress();if(token!==demoToken)return;
+  openOrderPicker(pickedId);await demoPause(450);if(token!==demoToken)return;
+  const choice=$("orderChoices").querySelector('[data-position="0"]'),cr=choice.getBoundingClientRect();
+  await demoMovePointer(cr.left+cr.width/2,cr.top+cr.height/2);if(token!==demoToken)return;
+  await demoPress();if(token!==demoToken)return;
+  moveOrder(pickedId,0);$("orderPicker").classList.remove("show");pickedStore=null;
+  $("orderClickHint").textContent="두 가지 방법으로 순서를 바꾼 뒤 완료 버튼을 누릅니다.";
+  $("demoPointer").classList.remove("show");await demoPause(1600);
+ }
+}
+function startOrderDemo(){stopOrderDemo();demoOriginalOrder=deliveryOrder.slice();const token=demoToken;runOrderDemo(token).catch(error=>{console.error("배송 순서 시연 오류",error);stopOrderDemo(true)})}
 renderHomeRows();renderOrderRows();
 const tours=[
 ["근무 시작","home","workBtn","배송 업무 시작 전 근무 상태를 시작으로 변경합니다.","시작하기"],
@@ -110,7 +158,7 @@ const tours=[
 ["배송지 상세정보","detail","detailInfo","매장 주소, 연락처, 배송 요청사항과 적치 참고 정보를 확인합니다.","매장 확인"],
 ["적치 사진 촬영","home","photoSheet","배송 완료 전 적치 사진을 카메라 또는 앨범에서 추가해 전송합니다.","배송 완료","photo"],
 ["배송 불가 처리","home","failModal","배송이 불가능하면 사유를 입력하고 다음 배송지로 넘어갑니다.","예외 처리","fail"]
-];let idx=0,last="",h="";
+];let idx=0,last="",h="",demoToken=0,demoOriginalOrder=null,tourToken=0;
 tours.forEach((t,i)=>{if(t[4]!==last){if(last)h+="</div>";h+=`<div class="group"><div class="gtitle">${t[4]}</div>`;last=t[4]}h+=`<div class="step" data-i="${i}">${t[0]}</div>`});h+="</div>";$("steps").innerHTML=h;
 function screen(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active")}
 function closeAll(){document.querySelectorAll(".sheet,.modal").forEach(x=>x.classList.remove("show"))}
@@ -150,18 +198,19 @@ function positionTip(el){
    requestAnimationFrame(()=>tip.classList.add("visible"));
  });
 }
-function tour(i){idx=(i+tours.length)%tours.length;$("tip").classList.remove("visible");closeAll();document.querySelectorAll(".guide-highlight").forEach(x=>x.classList.remove("guide-highlight"));document.querySelectorAll(".step").forEach((x,j)=>x.classList.toggle("active",j===idx));let t=tours[idx];screen(t[1]);if(t[5]==="today")$("todaySheet").classList.add("show");
+function tour(i){if(demoOriginalOrder)stopOrderDemo(true);const currentTour=++tourToken;idx=(i+tours.length)%tours.length;$("tip").classList.remove("visible");closeAll();document.querySelectorAll(".guide-highlight").forEach(x=>x.classList.remove("guide-highlight"));document.querySelectorAll(".step").forEach((x,j)=>x.classList.toggle("active",j===idx));let t=tours[idx];screen(t[1]);if(t[5]==="today")$("todaySheet").classList.add("show");
 if(t[5]==="photo")$("photoSheet").classList.add("show");
 if(t[5]==="fail")$("failModal").classList.add("show");
 if(t[5]==="orderselect")$("orderClickHint").textContent="① 순서를 변경할 배송지를 먼저 클릭하세요.";
-if(t[5]==="orderselected"){$("orderClickHint").textContent="② 선택한 배송지를 원하는 위치로 이동하세요.";let first=document.querySelector("#orderList .delivery");if(first)first.classList.add("guide-highlight");}$("progress").textContent=(idx+1)+" / "+tours.length;$("bottomTitle").textContent=t[0];$("bottomText").textContent=t[3];$("tipStep").textContent="STEP "+(idx+1);$("tipTitle").textContent=t[0];$("tipText").textContent=t[3];setTimeout(()=>{let e=$(t[2]);if(e){e.classList.add("guide-highlight");
+if(t[5]==="orderselected"){$("orderClickHint").textContent="② 선택한 배송지를 원하는 위치로 이동하세요.";let first=document.querySelector("#orderList .delivery");if(first)first.classList.add("guide-highlight");}$("progress").textContent=(idx+1)+" / "+tours.length;$("bottomTitle").textContent=t[0];$("bottomText").textContent=t[3];$("tipStep").textContent="STEP "+(idx+1);$("tipTitle").textContent=t[0];$("tipText").textContent=t[3];setTimeout(()=>{if(currentTour!==tourToken)return;let e=$(t[2]);if(e){e.classList.add("guide-highlight");
 let sc=document.querySelector(".screen.active");
 if(sc && sc.contains(e)){
  const er=e.getBoundingClientRect(),sr=sc.getBoundingClientRect();
  sc.scrollBy({top:(er.top+er.height/2)-(sr.top+sr.height/2),behavior:"smooth"});
 }
-setTimeout(()=>positionTip(e),650)}},180)}
-$("orderList").addEventListener("click",event=>{const number=event.target.closest(".order-number");if(number)openOrderPicker(Number(number.closest(".order-delivery").dataset.storeId))});
+setTimeout(()=>{if(currentTour!==tourToken)return;positionTip(e);if(idx===4)setTimeout(()=>{if(currentTour===tourToken)startOrderDemo()},500)},650)}},180)}
+$("order").addEventListener("pointerdown",event=>{if(demoOriginalOrder)stopOrderDemo(!!event.target.closest("#saveOrder,.back"))},{capture:true});
+$("orderList").addEventListener("click",event=>{const number=event.target.closest(".order-number");if(number){if(demoOriginalOrder)stopOrderDemo();openOrderPicker(Number(number.closest(".order-delivery").dataset.storeId))}});
 $("orderChoices").addEventListener("click",event=>{const choice=event.target.closest(".order-choice");if(!choice||pickedStore===null)return;moveOrder(pickedStore,Number(choice.dataset.position));pickedStore=null;closeOrderPicker()});
 $("closeOrderPicker").onclick=()=>{pickedStore=null;closeOrderPicker()};
 $("orderList").addEventListener("pointerdown",event=>{
@@ -192,4 +241,4 @@ function finishOrderDrag(event){if(!dragState)return;const dragged=dragState;dra
 $("orderList").addEventListener("pointerup",finishOrderDrag);
 $("orderList").addEventListener("pointercancel",finishOrderDrag);
 document.querySelectorAll(".step").forEach(x=>x.onclick=()=>tour(+x.dataset.i));$("prev").onclick=()=>tour(idx-1);$("next").onclick=()=>tour(idx+1);
-$("workBtn").onclick=()=>{$("workState").textContent="근무 중";$("workBtn").textContent="근무 중"};$("startDelivery").onclick=()=>$("startModal").classList.add("show");$("confirmStart").onclick=()=>{closeAll();$("workState").textContent="근무 중";$("locationNotice").textContent="📍 배송 중 · 위치 공유 중";$("todaySheet").classList.add("show")};$("orderBtn").onclick=()=>screen("order");$("saveOrder").onclick=()=>{renderHomeRows();$("orderHelp").querySelector(".muted").textContent="변경한 배송 순서가 반영되었습니다.";screen("home")};$("detailBtn").onclick=()=>{closeAll();screen("detail")};$("photoBtn").onclick=()=>{closeAll();$("photoSheet").classList.add("show")};$("failBtn").onclick=()=>{closeAll();$("failModal").classList.add("show")};document.querySelectorAll(".close").forEach(x=>x.onclick=closeAll);document.querySelectorAll(".back").forEach(x=>x.onclick=()=>screen("home"));tour(0);</script></body></html>
+$("workBtn").onclick=()=>{$("workState").textContent="근무 중";$("workBtn").textContent="근무 중"};$("startDelivery").onclick=()=>$("startModal").classList.add("show");$("confirmStart").onclick=()=>{closeAll();$("workState").textContent="근무 중";$("locationNotice").textContent="📍 배송 중 · 위치 공유 중";$("todaySheet").classList.add("show")};$("orderBtn").onclick=()=>screen("order");$("saveOrder").onclick=()=>{if(demoOriginalOrder)stopOrderDemo(true);renderHomeRows();$("orderHelp").querySelector(".muted").textContent="변경한 배송 순서가 반영되었습니다.";screen("home")};$("detailBtn").onclick=()=>{closeAll();screen("detail")};$("photoBtn").onclick=()=>{closeAll();$("photoSheet").classList.add("show")};$("failBtn").onclick=()=>{closeAll();$("failModal").classList.add("show")};document.querySelectorAll(".close").forEach(x=>x.onclick=closeAll);document.querySelectorAll(".back").forEach(x=>x.onclick=()=>screen("home"));tour(0);</script></body></html>

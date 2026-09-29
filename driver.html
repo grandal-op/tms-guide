@@ -27,6 +27,19 @@
 </style>
 <style>
 #tip{z-index:1000}
+.order-delivery{user-select:none;transition:box-shadow .2s ease,background .2s ease}
+.order-delivery .grow{min-width:0}
+.order-number{border:0;flex:none;cursor:pointer;color:#162f28}
+.order-number:hover,.order-number:focus-visible{background:#d8f5e7;outline:2px solid #15a466}
+.order-handle{border:0;background:transparent;color:#61776d;font-size:24px;padding:8px;cursor:grab;touch-action:none;flex:none}
+.order-handle:active{cursor:grabbing}
+.order-delivery.drag-source{opacity:.35}
+.order-delivery.drop-target{outline:2px dashed #15a466;background:#edfbf3}
+.order-ghost{position:fixed;z-index:1200;pointer-events:none;margin:0;box-shadow:0 18px 35px #173b3040;transform:scale(1.02)}
+.order-choice-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:18px 0}
+.order-choice{border:1px solid #bad7c8;background:#eef8f2;border-radius:12px;min-height:48px;font-size:18px;font-weight:800;color:#08794d;cursor:pointer}
+.order-choice.current{background:#0fa15e;color:#fff}
+#orderPicker .modalbox{max-width:330px}
 @media (max-width: 850px){
  html,body{width:100%;max-width:100%;overflow-x:hidden}
  .app{display:block;height:auto;min-height:100dvh}
@@ -67,21 +80,32 @@
 </head><body>
 <div class="app"><aside class="guide"><h1>기사앱 사용 가이드</h1><p>기능을 선택하면 실제 앱 화면으로 이동해 사용 위치와 방법을 안내합니다.</p><div id="steps"></div></aside><main class="stage"><h2>키친보드 배송 · 기사앱</h2><div class="phone"><div class="status"><span>3:28</span><span>Wi-Fi　83% 🔋</span></div>
 <section id="home" class="screen active"><div class="header"><span>키친보드 배송</span><span>↻</span></div><div class="content"><div class="card"><b>🚦 다음 배송지까지 약 19분 · 교통 정체</b><div class="muted">새봄푸드 강남점 · 4.1km</div></div><div class="summary"><div class="card"><span class="muted">근무 상태</span><div class="big" id="workState">준비</div><br><button id="workBtn" class="btn wide">근무 시작</button></div><div class="card"><span class="muted">오늘 배송</span><div class="big">6곳</div></div></div><div id="locationNotice" class="notice">📍 배송 시작 후 위치가 공유됩니다</div><br><button id="startDelivery" class="btn primary wide">▶ 오늘 배송 시작</button><div id="orderHelp" class="card"><b>🛣️ 출발 전 오늘 배송 코스를 확인해 주세요</b><button id="orderBtn" class="btn" style="float:right">순서 수정</button><div class="muted">필요한 경우 매장 순서를 수정할 수 있습니다.</div></div><h3>오늘 배송지 (6곳)</h3><div id="deliveryList"></div></div></section>
-<section id="order" class="screen"><div class="header"><span class="back">×</span><b>배송 순서 수정</b><span></span></div><div class="content"><p class="muted">원형 번호를 누르거나 목록을 끌어 이동하세요.</p><div id="orderList"></div><div style="height:190px"></div><button id="saveOrder" class="btn primary wide">✓ 모든 순서 수정 완료</button></div></section>
+<section id="order" class="screen"><div class="header"><span class="back">×</span><b>배송 순서 수정</b><span></span></div><div class="content"><p id="orderClickHint" class="muted">동그라미 숫자를 눌러 순번을 선택하거나 ≡ 아이콘을 끌어 이동하세요.</p><div id="orderList"></div><button id="saveOrder" class="btn primary wide" style="margin-top:12px">✓ 모든 순서 수정 완료</button></div></section>
 <section id="detail" class="screen"><div class="header"><span class="back">←</span><b>배송지 상세</b><span></span></div><div class="detail"><h2>새봄푸드 강남점</h2><p>📍 서울 강남구 언주로154길 10</p><div id="detailInfo" class="card">☎ 연락처 02-555-1234</div><div class="card"><b>ⓘ 배송 요청사항</b><p>후문 주방 입구에 적치해 주세요.</p></div><h3>적치 장소</h3><div class="photo">등록된 적치 참고 사진 영역</div></div></section>
 <div id="startModal" class="modal"><div class="modalbox"><div style="text-align:center;font-size:35px">📍</div><h2 style="text-align:center">오늘 배송을 시작할까요?</h2><p>배송을 시작하면 배송 종료 전까지 위치가 공유됩니다.</p><div style="text-align:right"><button class="btn close">취소</button> <button id="confirmStart" class="btn primary">오늘 배송 시작</button></div></div></div>
 <div id="todaySheet" class="sheet"><div class="sheetbox"><div style="display:flex;justify-content:space-between"><h2>오늘 배송</h2><button class="btn close">×</button></div><div class="notice">🚚 진행 중 <b style="float:right">0 / 6</b></div><h3>현재 배송지</h3><div class="card"><b>① 새봄푸드 강남점</b><p>서울 강남구 언주로154길 10</p><div style="display:flex;gap:8px"><button class="btn" style="flex:1">☎ 전화</button><button id="detailBtn" class="btn" style="flex:1">▤ 상세정보</button></div><button id="photoBtn" class="btn primary wide" style="margin-top:12px">📷 적치 사진 촬영</button><button id="failBtn" class="btn wide" style="margin-top:8px;color:#c33">⚠ 배송 불가</button></div></div></div>
 <div id="photoSheet" class="sheet"><div class="sheetbox" style="min-height:350px"><h2>적치 사진 모아 전송</h2><p>0/5장 선택 · 사진을 모두 추가한 뒤 완료하세요.</p><div style="display:flex;gap:8px"><button class="btn" style="flex:1">📷 카메라로 추가</button><button class="btn" style="flex:1">▣ 앨범에서 추가</button></div><button class="btn wide" style="margin-top:20px" disabled>0장 전송하고 배송 완료</button><button class="btn wide close">취소</button></div></div>
 <div id="failModal" class="modal"><div class="modalbox"><div style="text-align:center;color:#c33;font-size:30px">⚠</div><h2 style="text-align:center">배송 불가 사유 입력</h2><b>배송이 불가능한 사유를 입력해 주세요.</b><textarea style="width:100%;height:120px;border:2px solid #0fa15e;margin-top:12px;padding:10px" placeholder="예: 매장 휴무, 연락 불가, 진입 불가"></textarea><p class="muted">사유를 입력해야 다음 배송지로 넘어갈 수 있습니다.</p><div style="text-align:right"><button class="btn close">취소</button> <button class="btn" style="background:#df3434;color:white">배송 불가 처리</button></div></div></div>
+<div id="orderPicker" class="modal"><div class="modalbox"><h2 style="margin-top:0">배송 순서 선택</h2><p id="orderPickerStore" class="muted"></p><div id="orderChoices" class="order-choice-grid"></div><button id="closeOrderPicker" class="btn wide">취소</button></div></div>
 </div></main></div><div id="tip"><small id="tipStep"></small><b id="tipTitle"></b><p id="tipText"></p></div><div class="bottom"><span id="progress"></span><div class="copy"><b id="bottomTitle"></b><span id="bottomText"></span></div><div class="actions"><button id="prev" class="btn">← 이전</button><button id="next" class="btn primary">다음 →</button></div></div><script>const $=x=>document.getElementById(x);
 const stores=[["새봄푸드 강남점","서울 강남구 언주로154길 10"],["잇샐러드 용산점","서울 용산구 한강대로23길 55"],["마마스푸드 부천점","경기 부천시 오정구 석천로 397"],["서원F&B","서울 성북구 동소문로 315"],["쇼미더크랩 명동점","서울 중구 명동4길 46"],["쇼미더크랩 압구정점","서울 강남구 압구정로28길 22"]];
-const rows=()=>stores.map((s,i)=>`<div class="delivery"><span class="num">${i+1}</span><div class="grow"><b>${s[0]}</b><span class="muted">${s[1]}</span></div><span class="badge">배송 대기</span><span>≡</span></div>`).join("");$("deliveryList").innerHTML=rows();$("orderList").innerHTML=rows();
+let deliveryOrder=stores.map((_,i)=>i),pickedStore=null,dragState=null;
+function renderHomeRows(){ $("deliveryList").innerHTML=deliveryOrder.map((id,i)=>{const s=stores[id];return `<div class="delivery"><span class="num">${i+1}</span><div class="grow"><b>${s[0]}</b><span class="muted">${s[1]}</span></div><span class="badge">배송 대기</span></div>`}).join("") }
+function renderOrderRows(animate=false){
+ const previous=new Map(animate?[...$("orderList").children].map(row=>[row.dataset.storeId,row.getBoundingClientRect().top]):[]);
+ $("orderList").innerHTML=deliveryOrder.map((id,i)=>{const s=stores[id];return `<div class="delivery order-delivery" data-store-id="${id}"><button type="button" class="num order-number" aria-label="${s[0]} 현재 ${i+1}번, 순서 변경">${i+1}</button><div class="grow"><b>${s[0]}</b><span class="muted">${s[1]}</span></div><button type="button" class="order-handle" aria-label="${s[0]} 끌어서 순서 변경">≡</button></div>`}).join("");
+ if(animate)for(const row of $("orderList").children){const from=previous.get(row.dataset.storeId);if(from!==undefined){const distance=from-row.getBoundingClientRect().top;if(Math.abs(distance)>1)row.animate([{transform:`translateY(${distance}px)`},{transform:"translateY(0)"}],{duration:320,easing:"cubic-bezier(.2,.8,.2,1)"})}}
+}
+function moveOrder(id,to){const from=deliveryOrder.indexOf(id);if(from<0||to<0||to>=deliveryOrder.length||from===to)return;deliveryOrder.splice(from,1);deliveryOrder.splice(to,0,id);renderOrderRows(true);$("orderClickHint").textContent=`${stores[id][0]}을(를) ${to+1}번으로 이동했습니다.`}
+function closeOrderPicker(){ $("orderPicker").classList.remove("show");if(idx===4)positionTip($("orderList")) }
+function openOrderPicker(id){pickedStore=id;$("orderPickerStore").textContent=stores[id][0];$("orderChoices").innerHTML=deliveryOrder.map((_,i)=>`<button type="button" class="order-choice ${deliveryOrder.indexOf(id)===i?'current':''}" data-position="${i}">${i+1}번</button>`).join("");$("tip").classList.remove("visible");$("orderPicker").classList.add("show")}
+renderHomeRows();renderOrderRows();
 const tours=[
 ["근무 시작","home","workBtn","배송 업무 시작 전 근무 상태를 시작으로 변경합니다.","시작하기"],
 ["오늘 배송 시작","home","startDelivery","오늘 배송 시작을 누르면 위치 공유 안내 후 배송을 시작합니다.","시작하기"],
 ["위치 공유 안내","home","locationNotice","배송 시작 이후 배송 종료 전까지 기사 위치가 공유됩니다.","시작하기"],
 ["배송지 목록 확인","home","deliveryList","오늘 배정된 배송지와 배송 순서를 확인합니다.","배송 진행"],
-["배송 순서 수정","order","orderList","출발 전 필요한 경우 배송 순서를 변경하고 저장합니다.","배송 진행"],
+["배송 순서 수정","order","orderList","동그라미 숫자로 새 순번을 선택하거나 ≡ 아이콘을 끌어 순서를 바꾼 뒤 저장합니다.","배송 진행"],
 ["현재 배송지 확인","home","todaySheet","배송 시작 후 현재 배송지에서 전화, 상세정보, 완료 업무를 진행합니다.","배송 진행","today"],
 ["배송지 상세정보","detail","detailInfo","매장 주소, 연락처, 배송 요청사항과 적치 참고 정보를 확인합니다.","매장 확인"],
 ["적치 사진 촬영","home","photoSheet","배송 완료 전 적치 사진을 카메라 또는 앨범에서 추가해 전송합니다.","배송 완료","photo"],
@@ -137,10 +161,35 @@ if(sc && sc.contains(e)){
  sc.scrollBy({top:(er.top+er.height/2)-(sr.top+sr.height/2),behavior:"smooth"});
 }
 setTimeout(()=>positionTip(e),650)}},180)}
-document.querySelectorAll("#orderList .delivery").forEach(row=>row.onclick=()=>{
- document.querySelectorAll("#orderList .delivery").forEach(x=>x.classList.remove("guide-highlight"));
- row.classList.add("guide-highlight");
- $("orderClickHint").textContent="② 선택 완료 · 원하는 위치로 이동하세요.";
+$("orderList").addEventListener("click",event=>{const number=event.target.closest(".order-number");if(number)openOrderPicker(Number(number.closest(".order-delivery").dataset.storeId))});
+$("orderChoices").addEventListener("click",event=>{const choice=event.target.closest(".order-choice");if(!choice||pickedStore===null)return;moveOrder(pickedStore,Number(choice.dataset.position));pickedStore=null;closeOrderPicker()});
+$("closeOrderPicker").onclick=()=>{pickedStore=null;closeOrderPicker()};
+$("orderList").addEventListener("pointerdown",event=>{
+ const handle=event.target.closest(".order-handle");if(!handle)return;
+ const row=handle.closest(".order-delivery"),rect=row.getBoundingClientRect();
+ dragState={id:Number(row.dataset.storeId),row,handle,startY:event.clientY,offsetY:event.clientY-rect.top,left:rect.left,width:rect.width,ghost:null};
+ handle.setPointerCapture(event.pointerId);$("tip").classList.remove("visible");event.preventDefault();
 });
+$("orderList").addEventListener("pointermove",event=>{
+ if(!dragState)return;
+ if(!dragState.ghost&&Math.abs(event.clientY-dragState.startY)<6)return;
+ if(!dragState.ghost){const ghost=dragState.row.cloneNode(true);ghost.classList.add("order-ghost");ghost.style.left=dragState.left+"px";ghost.style.width=dragState.width+"px";document.body.append(ghost);dragState.ghost=ghost;dragState.row.classList.add("drag-source")}
+ dragState.ghost.style.top=event.clientY-dragState.offsetY+"px";
+ const sc=$("order"),sr=sc.getBoundingClientRect();
+ if(event.clientY>sr.bottom-45)sc.scrollBy(0,15);else if(event.clientY<sr.top+45)sc.scrollBy(0,-15);
+ $("orderList").querySelectorAll(".drop-target").forEach(row=>row.classList.remove("drop-target"));
+ const target=document.elementFromPoint(event.clientX,event.clientY)?.closest(".order-delivery");
+ if(target&&target!==dragState.row&&$("orderList").contains(target))target.classList.add("drop-target");
+ event.preventDefault();
+});
+function finishOrderDrag(event){if(!dragState)return;const dragged=dragState;dragState=null;
+ const target=dragged.ghost?document.elementFromPoint(event.clientX,event.clientY)?.closest(".order-delivery"):null;
+ dragged.ghost?.remove();dragged.row.classList.remove("drag-source");
+ $("orderList").querySelectorAll(".drop-target").forEach(row=>row.classList.remove("drop-target"));
+ if(target&&$("orderList").contains(target))moveOrder(dragged.id,deliveryOrder.indexOf(Number(target.dataset.storeId)));
+ if(idx===4)positionTip($("orderList"));
+}
+$("orderList").addEventListener("pointerup",finishOrderDrag);
+$("orderList").addEventListener("pointercancel",finishOrderDrag);
 document.querySelectorAll(".step").forEach(x=>x.onclick=()=>tour(+x.dataset.i));$("prev").onclick=()=>tour(idx-1);$("next").onclick=()=>tour(idx+1);
-$("workBtn").onclick=()=>{$("workState").textContent="근무 중";$("workBtn").textContent="근무 중"};$("startDelivery").onclick=()=>$("startModal").classList.add("show");$("confirmStart").onclick=()=>{closeAll();$("workState").textContent="근무 중";$("locationNotice").textContent="📍 배송 중 · 위치 공유 중";$("todaySheet").classList.add("show")};$("orderBtn").onclick=()=>screen("order");$("saveOrder").onclick=()=>{alert("데모: 배송 순서가 저장되었습니다.");screen("home")};$("detailBtn").onclick=()=>{closeAll();screen("detail")};$("photoBtn").onclick=()=>{closeAll();$("photoSheet").classList.add("show")};$("failBtn").onclick=()=>{closeAll();$("failModal").classList.add("show")};document.querySelectorAll(".close").forEach(x=>x.onclick=closeAll);document.querySelectorAll(".back").forEach(x=>x.onclick=()=>screen("home"));tour(0);</script></body></html>
+$("workBtn").onclick=()=>{$("workState").textContent="근무 중";$("workBtn").textContent="근무 중"};$("startDelivery").onclick=()=>$("startModal").classList.add("show");$("confirmStart").onclick=()=>{closeAll();$("workState").textContent="근무 중";$("locationNotice").textContent="📍 배송 중 · 위치 공유 중";$("todaySheet").classList.add("show")};$("orderBtn").onclick=()=>screen("order");$("saveOrder").onclick=()=>{renderHomeRows();$("orderHelp").querySelector(".muted").textContent="변경한 배송 순서가 반영되었습니다.";screen("home")};$("detailBtn").onclick=()=>{closeAll();screen("detail")};$("photoBtn").onclick=()=>{closeAll();$("photoSheet").classList.add("show")};$("failBtn").onclick=()=>{closeAll();$("failModal").classList.add("show")};document.querySelectorAll(".close").forEach(x=>x.onclick=closeAll);document.querySelectorAll(".back").forEach(x=>x.onclick=()=>screen("home"));tour(0);</script></body></html>
